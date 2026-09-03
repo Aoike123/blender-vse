@@ -1,0 +1,145 @@
+{
+  "version": "1.1",
+  "default_view": "summary",
+  "envelope_headroom_bytes": 512,
+  "views": {
+    "summary": {
+      "bounded": true,
+      "max_bytes": 8192,
+      "paged": false
+    },
+    "range": {
+      "bounded": true,
+      "max_bytes": 16384,
+      "paged": true,
+      "default_limit": 50,
+      "max_limit": 200
+    },
+    "detail": {
+      "bounded": true,
+      "max_bytes": 16384,
+      "paged": true,
+      "default_limit": 50,
+      "max_limit": 200
+    },
+    "full": {
+      "bounded": false,
+      "max_bytes": null,
+      "paged": false,
+      "explicit_only": true,
+      "compatibility": true
+    }
+  },
+  "strip_fields": {
+    "core": [
+      "video_ai_id",
+      "id",
+      "name",
+      "type",
+      "channel",
+      "frame_start",
+      "frame_end",
+      "source_in",
+      "source_out",
+      "mute",
+      "lock",
+      "asset_id",
+      "asset_revision"
+    ],
+    "includes": {
+      "text": [
+        "text",
+        "font_size",
+        "position",
+        "alignment_x",
+        "use_shadow",
+        "use_outline",
+        "use_box"
+      ],
+      "source": ["source_path"],
+      "transform": ["transform", "blend_type", "opacity"],
+      "audio": ["volume"],
+      "proxy": ["proxy"],
+      "metadata": ["meta"]
+    }
+  },
+  "value_limits": {
+    "identifier_bytes": 512,
+    "text_bytes": 4096,
+    "path_bytes": 2048,
+    "object_bytes": 1536
+  },
+  "query_limits": {
+    "max_strip_ids": 200,
+    "max_channels": 128,
+    "max_strip_types": 32
+  },
+  "tool_results": {
+    "patch": {
+      "max_bytes": 4096,
+      "max_commands": 100,
+      "payload_bytes": 512,
+      "max_failures": 10
+    },
+    "acknowledge": {
+      "max_bytes": 4096
+    },
+    "verify": {
+      "max_bytes": 8192,
+      "max_proxy_warnings": 20,
+      "warning_bytes": 512
+    },
+    "error": {
+      "max_bytes": 4096,
+      "message_bytes": 512
+    }
+  },
+  "compaction": {
+    "capsule": {
+      "version": "1.0",
+      "max_bytes": 4096,
+      "field_bytes": {
+        "project": 768,
+        "objective": 768,
+        "timeline_hash": 256,
+        "next_action": 512,
+        "history_item": 192
+      },
+      "recent_limits": {
+        "completed_actions": 6,
+        "patch_ids": 16,
+        "relevant_strip_ids": 16,
+        "user_constraints": 6,
+        "unresolved_blockers": 6,
+        "output_paths": 6
+      }
+    },
+    "preserve": [
+      "project",
+      "objective",
+      "completed_actions",
+      "patch_ids",
+      "last_verified_revision",
+      "last_verified_timeline_hash",
+      "relevant_strip_ids",
+      "output_paths",
+      "user_constraints",
+      "unresolved_blockers",
+      "next_action"
+    ],
+    "discard": [
+      "observation_id",
+      "full_timeline",
+      "raw_tool_history",
+      "raw_blender_logs",
+      "cursor",
+      "expired_diagnostics",
+      "completed_reasoning"
+    ],
+    "resume": [
+      "read summary",
+      "read targeted detail",
+      "use the new observation_id for the next patch"
+    ]
+  }
+}

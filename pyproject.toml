@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blender-vse-control"
+version = "0.1.0"
+description = "Low-context, revision-safe Blender VSE editing for Agent hosts"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "LICENSES/*.txt", "THIRD_PARTY_NOTICES.md"]
+keywords = ["blender", "video-editing", "vse", "automation", "nle"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Aoike123/blender-vse-control"
+Repository = "https://github.com/Aoike123/blender-vse-control.git"
+Issues = "https://github.com/Aoike123/blender-vse-control/issues"
+
+[project.optional-dependencies]
+mcp = [
+  "mcp>=2.0,<3",
+]
+test-core = [
+  "jsonschema>=4.20,<5",
+  "pytest>=8.0,<10",
+]
+test = [
+  "jsonschema>=4.20,<5",
+  "mcp>=2.0,<3",
+  "pytest>=8.0,<10",
+  "pytest-cov>=5.0,<8",
+]
+coverage = [
+  "jsonschema>=4.20,<5",
+  "pytest>=8.0,<10",
+  "pytest-cov>=5.0,<8",
+]
+dev = [
+  "build>=1.2,<2",
+  "jsonschema>=4.20,<5",
+  "mcp[cli]>=2.0,<3",
+  "pytest>=8.0,<10",
+  "pytest-cov>=5.0,<8",
+]
+
+[project.scripts]
+blender-vse = "blender_vse.cli:main"
+blender-vse-mcp = "blender_vse.mcp:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+blender_vse = [
+  "context-policy.json",
+  "py.typed",
+  "schemas/*.json",
+  "blender/bridge/*.py",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit", "tests/contract"]
+pythonpath = ["src"]
+addopts = "-ra --strict-config --strict-markers"
+markers = [
+  "integration: requires an installed Blender runtime",
+  "gui: requires a visible desktop Blender session",
+  "mcp: requires the optional MCP SDK and may launch a local stdio subprocess",
+  "slow: intentionally outside the fast pull-request gate",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["blender_vse"]
+omit = [
+  "*/blender/bridge/*",
+  "*/blender/live_session.py",
+  "*/blender/vse_ops.py",
+]
+
+[tool.coverage.report]
+fail_under = 75
+precision = 1
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]

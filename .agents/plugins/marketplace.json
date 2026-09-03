@@ -1,0 +1,21 @@
+{
+  "name": "blender-vse",
+  "interface": {
+    "displayName": "Blender VSE"
+  },
+  "plugins": [
+    {
+      "name": "blender-vse",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Aoike123/blender-vse-control.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

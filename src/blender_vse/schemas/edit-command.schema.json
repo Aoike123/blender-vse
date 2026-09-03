@@ -1,0 +1,321 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:blender-vse:schema:edit-command",
+  "title": "EditCommand",
+  "description": "Typed Blender VSE edit command. Commands select allowlisted operations and never contain free-form Python.",
+  "type": "object",
+  "required": ["op"],
+  "properties": {
+    "op": {
+      "type": "string",
+      "enum": [
+        "inspect_media",
+        "add_movie",
+        "add_sound",
+        "add_image",
+        "add_image_sequence",
+        "add_text",
+        "add_color",
+        "add_scene",
+        "add_effect",
+        "add_transition",
+        "delete_strip",
+        "cut_strip",
+        "trim_strip",
+        "move",
+        "change_channel",
+        "mute",
+        "lock",
+        "set_speed",
+        "set_blend",
+        "set_opacity",
+        "set_transform",
+        "set_text",
+        "set_font",
+        "set_font_size",
+        "set_alignment",
+        "set_outline",
+        "set_shadow",
+        "set_text_position",
+        "set_volume",
+        "set_crop",
+        "list_strips",
+        "get_timeline_info",
+        "render_preview",
+        "render_final",
+        "clear_vse",
+        "save_project",
+        "open_project",
+        "create_project",
+        "acknowledge_revision",
+        "add_keyframe",
+        "add_marker",
+        "add_subtitle_track",
+        "apply_patch",
+        "apply_text_style",
+        "assemble_clips",
+        "attach_proxy",
+        "batch",
+        "clear_keyframes",
+        "clear_proxies",
+        "close_all_gaps",
+        "close_gap",
+        "collect_project_assets",
+        "create_checkpoint",
+        "create_text_style",
+        "delete_checkpoint",
+        "delete_keyframe",
+        "delete_marker",
+        "delete_subtitle_range",
+        "delete_text_style",
+        "detach_proxy",
+        "duck_audio",
+        "ensure_strip_ids",
+        "export_srt",
+        "extract_edit",
+        "fade_audio_in",
+        "fade_audio_out",
+        "fade_in",
+        "fade_out",
+        "find_font",
+        "find_gaps",
+        "find_overlaps",
+        "find_strips",
+        "generate_contact_sheet",
+        "get_capabilities",
+        "get_channel_roles",
+        "get_missing_fonts",
+        "get_playhead",
+        "get_project_info",
+        "get_proxy_status",
+        "get_revision",
+        "get_strip_by_id",
+        "get_strip_metadata",
+        "import_srt",
+        "insert_edit",
+        "lift_edit",
+        "list_checkpoints",
+        "list_fonts",
+        "list_keyframes",
+        "list_markers",
+        "list_operations",
+        "list_text_styles",
+        "merge_subtitles",
+        "move_marker",
+        "move_playhead",
+        "mute_range",
+        "nudge_end",
+        "nudge_start",
+        "overwrite_edit",
+        "package_project",
+        "punch_in",
+        "punch_out",
+        "register_font",
+        "render_frame",
+        "render_range",
+        "reorder_clips",
+        "replace_clip",
+        "replace_missing_font",
+        "replace_subtitle_text",
+        "resolve_strip",
+        "restore_checkpoint",
+        "retime_subtitles",
+        "ripple_delete",
+        "ripple_insert",
+        "roll_trim",
+        "save_project_copy",
+        "set_box",
+        "set_channel_role",
+        "set_keyframe_interpolation",
+        "set_pan",
+        "set_playhead",
+        "set_strip_metadata",
+        "set_volume_range",
+        "shift_subtitles",
+        "slide",
+        "slide_in",
+        "slide_out",
+        "slip",
+        "split_subtitle",
+        "swap_clips",
+        "update_keyframe",
+        "update_marker",
+        "update_text_style",
+        "validate_timeline",
+        "verify_persistence",
+        "zoom_in",
+        "zoom_out",
+        "bind_asset",
+        "configure_vse_layout",
+        "relink_asset_binding",
+        "replace_asset_binding",
+        "set_frame_range"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "description": "Strip/clip name or id. Required for most edit ops."
+    },
+    "asset": {
+      "type": "string",
+      "description": "Source media file path (for add/insert/import ops)."
+    },
+    "timeline_start": {
+      "type": "number",
+      "description": "Timeline position in SECONDS (converted to frames by adapter using project fps)."
+    },
+    "frame_start": {
+      "type": "integer",
+      "description": "Timeline position in FRAMES. Prefer over timeline_start when frame-exact."
+    },
+    "source_in": {
+      "type": "number",
+      "description": "Source in point in SECONDS."
+    },
+    "source_out": {
+      "type": "number",
+      "description": "Source out point in SECONDS."
+    },
+    "track": {
+      "type": "string",
+      "description": "Track/channel label: V1, V2, V3, A1, A2... mapped to numeric channels by adapter."
+    },
+    "channel": {
+      "type": "integer",
+      "description": "Raw VSE channel number (1-128). Overrides track if both given."
+    },
+    "length": {
+      "type": "integer",
+      "description": "Strip length in frames (for text/color/effect strips)."
+    },
+    "text": {
+      "type": "string",
+      "description": "Text content for text strips."
+    },
+    "font": {
+      "type": "string",
+      "description": "Font file path or font name."
+    },
+    "font_size": {
+      "type": "number",
+      "description": "Font size in points."
+    },
+    "position": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Normalized position [x, y] 0-1 (0.5, 0.5 = center)."
+    },
+    "scale": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Scale [x, y]."
+    },
+    "rotation": {
+      "type": "number",
+      "description": "Rotation in DEGREES."
+    },
+    "opacity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Opacity 0-1 (maps to blend_alpha)."
+    },
+    "volume": {
+      "type": "number",
+      "description": "Volume multiplier for sound strips."
+    },
+    "mute": {
+      "type": "boolean",
+      "description": "Mute state."
+    },
+    "lock": {
+      "type": "boolean",
+      "description": "Lock state."
+    },
+    "alignment": {
+      "type": "string",
+      "enum": ["LEFT", "CENTER", "RIGHT"],
+      "description": "Horizontal text alignment."
+    },
+    "outline": {
+      "type": "boolean",
+      "description": "Enable text outline."
+    },
+    "outline_width": {
+      "type": "number",
+      "description": "Outline width (normalized)."
+    },
+    "shadow": {
+      "type": "boolean",
+      "description": "Enable text shadow."
+    },
+    "transition_type": {
+      "type": "string",
+      "description": "Transition type: CROSS, GAMMA_CROSS, WIPE, etc."
+    },
+    "transition_frames": {
+      "type": "integer",
+      "description": "Transition duration in frames."
+    },
+    "blend_type": {
+      "type": "string",
+      "description": "Blend mode: ALPHA_OVER, ADD, MULTIPLY, etc."
+    },
+    "speed_factor": {
+      "type": "number",
+      "description": "Playback speed multiplier."
+    },
+    "crop": {
+      "type": "object",
+      "properties": {
+        "left": { "type": "integer" },
+        "right": { "type": "integer" },
+        "top": { "type": "integer" },
+        "bottom": { "type": "integer" }
+      }
+    },
+    "resolution": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "[width, height] for render. Preview sizes must be an exact uniform integer-percentage scale of the editor canvas."
+    },
+    "scale_percent": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Preview-only downsample percentage. Keeps the editor canvas and VSE composition coordinates unchanged."
+    },
+    "fps": {
+      "type": "number",
+      "description": "Frames per second for render."
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Output file path. Never overwrites source."
+    },
+    "codec": {
+      "type": "string",
+      "description": "Output codec: h264, h265, prores, dnxhd..."
+    },
+    "quality": {
+      "type": "string",
+      "description": "Quality preset: draft, medium, high, lossless."
+    },
+    "project": {
+      "type": "string",
+      "description": "Path to .blend project file (Blender adapter)."
+    },
+    "dry_run": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, adapter validates + computes result but does NOT modify anything."
+    }
+  },
+  "additionalProperties": true
+}

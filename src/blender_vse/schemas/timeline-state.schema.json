@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:blender-vse:schema:timeline-state",
+  "title": "TimelineState",
+  "description": "Canonical complete timeline snapshot used internally and by explicit full compatibility reads. Long-running agents should consume the bounded read-result projections instead.",
+  "type": "object",
+  "required": ["project", "fps", "resolution", "strips"],
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project file path (.blend for Blender adapter)."
+    },
+    "fps": {
+      "type": "number",
+      "description": "Frames per second."
+    },
+    "resolution": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "[width, height]."
+    },
+    "frame_start": {
+      "type": "integer",
+      "description": "Timeline start frame."
+    },
+    "frame_end": {
+      "type": "integer",
+      "description": "Timeline end frame."
+    },
+    "playhead": {
+      "type": "integer",
+      "description": "Current frame."
+    },
+    "strips": {
+      "type": "array",
+      "description": "All strips in the timeline.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "channel", "frame_start", "frame_end"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable unique id (strip name in Blender)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "type": {
+            "type": "string",
+            "description": "MOVIE, SOUND, TEXT, COLOR, IMAGE, SCENE, EFFECT..."
+          },
+          "channel": {
+            "type": "integer",
+            "description": "VSE channel (higher = on top)."
+          },
+          "track": {
+            "type": "string",
+            "description": "Semantic track label (V1/V2/A1/A2) when mapped."
+          },
+          "frame_start": {
+            "type": "integer",
+            "description": "Visual start frame on timeline (left handle)."
+          },
+          "frame_end": {
+            "type": "integer",
+            "description": "Visual end frame on timeline (right handle)."
+          },
+          "source_in": {
+            "type": "integer",
+            "description": "Source content in frame (offset into media)."
+          },
+          "source_out": {
+            "type": "integer",
+            "description": "Source content out frame."
+          },
+          "source_path": {
+            "type": ["string", "null"],
+            "description": "Resolved original media path. Proxy attachment never changes it."
+          },
+          "mute": { "type": "boolean" },
+          "lock": { "type": "boolean" },
+          "blend_type": { "type": "string" },
+          "opacity": { "type": "number" },
+          "volume": { "type": "number" },
+          "text": {
+            "type": "string",
+            "description": "Text content (TEXT strips only)."
+          },
+          "font_size": { "type": "number" },
+          "position": {
+            "type": "array",
+            "items": { "type": "number" },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "transform": {
+            "type": "object",
+            "properties": {
+              "offset_x": { "type": "number" },
+              "offset_y": { "type": "number" },
+              "scale_x": { "type": "number" },
+              "scale_y": { "type": "number" },
+              "rotation": { "type": "number" }
+            }
+          },
+          "proxy": {
+            "type": ["object", "null"],
+            "description": "Actual Blender proxy config plus manifest-backed runtime status for MOVIE strips.",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "mode": { "type": "string", "enum": ["detached", "custom_file", "legacy_blender_cache"] },
+              "status": { "type": "string", "enum": ["detached", "ready", "missing", "stale_source", "invalid_manifest", "legacy_blender_cache"] },
+              "path": { "type": "string" },
+              "exists": { "type": "boolean" },
+              "scale": { "type": ["integer", "null"], "enum": [25, 50, 75, 100, null] },
+              "profile": { "type": ["string", "null"] },
+              "portable": { "type": ["boolean", "null"] },
+              "manifest_path": { "type": ["string", "null"] },
+              "config": { "type": "object" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

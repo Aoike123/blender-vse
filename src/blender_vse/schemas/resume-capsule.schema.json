@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:blender-vse:schema:resume-capsule",
+  "title": "ResumeCapsule",
+  "description": "Bounded state retained across Agent context compaction or handoff.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capsule_version",
+    "project",
+    "objective",
+    "confirmed",
+    "history",
+    "next_action",
+    "resume",
+    "truncated_fields",
+    "context"
+  ],
+  "properties": {
+    "capsule_version": { "const": "1.0" },
+    "project": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "confirmed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "timeline_hash"],
+      "properties": {
+        "revision": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "timeline_hash": { "type": "string" }
+      }
+    },
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_actions",
+        "patch_ids",
+        "relevant_strip_ids",
+        "user_constraints",
+        "unresolved_blockers",
+        "output_paths"
+      ],
+      "properties": {
+        "completed_actions": { "$ref": "#/definitions/history" },
+        "patch_ids": { "$ref": "#/definitions/history" },
+        "relevant_strip_ids": { "$ref": "#/definitions/history" },
+        "user_constraints": { "$ref": "#/definitions/history" },
+        "unresolved_blockers": { "$ref": "#/definitions/history" },
+        "output_paths": { "$ref": "#/definitions/history" }
+      }
+    },
+    "next_action": { "type": "string" },
+    "resume": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "truncated_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "view",
+        "bounded",
+        "max_bytes",
+        "response_bytes"
+      ],
+      "properties": {
+        "protocol_version": { "const": "1.1" },
+        "view": { "const": "resume_capsule" },
+        "bounded": { "const": true },
+        "max_bytes": { "const": 4096 },
+        "response_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        }
+      }
+    }
+  },
+  "definitions": {
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "shown",
+        "omitted",
+        "truncated_recent",
+        "sha256",
+        "recent"
+      ],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "shown": { "type": "integer", "minimum": 0 },
+        "omitted": { "type": "integer", "minimum": 0 },
+        "truncated_recent": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "uniqueItems": true
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "recent": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

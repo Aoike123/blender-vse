@@ -1,0 +1,17 @@
+interface:
+  display_name: "Blender VSE"
+  short_description: "Low-context, focused Blender video editing"
+  icon_small: "./assets/icon.png"
+  icon_large: "./assets/logo.png"
+  brand_color: "#E87D0D"
+  default_prompt: "Use $blender-vse to turn these resources into an editable Blender timeline."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "blender-vse-control"
+      description: "Local revision-safe Blender VSE server with four public tools"
+      transport: "stdio"
+
+policy:
+  allow_implicit_invocation: true

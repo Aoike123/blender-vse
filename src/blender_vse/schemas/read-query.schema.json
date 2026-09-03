@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blender-vse:schema:read-query",
+  "title": "BoundedReadQuery",
+  "description": "Selects a context-bounded timeline projection for blender_read.",
+  "type": "object",
+  "properties": {
+    "view": {
+      "type": "string",
+      "enum": ["summary", "range", "detail", "full"],
+      "default": "summary"
+    },
+    "frame_range": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer" },
+        { "type": "integer" }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "strip_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "maxItems": 200,
+      "uniqueItems": true
+    },
+    "channels": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1, "maximum": 128 },
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true
+    },
+    "strip_types": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["text", "source", "transform", "audio", "proxy", "metadata"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "cursor": { "type": "string", "minLength": 1 },
+    "limit": { "type": "integer", "minimum": 1, "maximum": 200 }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "view": { "const": "summary" } }
+      },
+      "then": {
+        "properties": { "include": { "maxItems": 0 } },
+        "not": {
+          "anyOf": [
+            { "required": ["cursor"] },
+            { "required": ["limit"] }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "view": { "const": "range" } },
+        "required": ["view"]
+      },
+      "then": { "required": ["frame_range"] }
+    },
+    {
+      "if": {
+        "properties": { "view": { "const": "detail" } },
+        "required": ["view"]
+      },
+      "then": {
+        "anyOf": [
+          { "required": ["frame_range"] },
+          { "required": ["strip_ids"] },
+          { "required": ["channels"] },
+          { "required": ["strip_types"] }
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": { "view": { "const": "full" } },
+        "required": ["view"]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            { "required": ["frame_range"] },
+            { "required": ["strip_ids"] },
+            { "required": ["channels"] },
+            { "required": ["strip_types"] },
+            { "required": ["include"] },
+            { "required": ["cursor"] },
+            { "required": ["limit"] }
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

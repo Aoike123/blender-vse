@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "brand": "Blender VSE Control",
+  "assets": [
+    {
+      "path": "assets/icon.png",
+      "source": "assets/source/icon.svg",
+      "dimensions": [128, 128],
+      "sha256": "2ec4710d588762c40f87fce58da344528da90228f6b305d9a385fa2556009108"
+    },
+    {
+      "path": "assets/logo.png",
+      "source": "assets/source/logo.svg",
+      "dimensions": [512, 512],
+      "sha256": "de9d775b55a28aac1a82859514f25fc3178a1ab988c11d95fb2e11c309dcb6f5"
+    },
+    {
+      "path": "assets/logo-dark.png",
+      "source": "assets/source/icon.svg",
+      "dimensions": [512, 512],
+      "sha256": "26f7a31c95f5fd84131cfc36771f97537c8035e330332ad892fc3dd62db281a1"
+    },
+    {
+      "path": "assets/social-preview.png",
+      "source": "assets/source/social-preview.svg",
+      "locale": "en",
+      "dimensions": [1280, 640],
+      "sha256": "5fbf8f89eb9792db5ec55362559f403366b6cc1032901503b74806e66f20aded"
+    },
+    {
+      "path": "assets/social-preview_zh-CN.png",
+      "source": "assets/source/social-preview_zh-CN.svg",
+      "locale": "zh-CN",
+      "dimensions": [1280, 640],
+      "sha256": "8798155b1ac92dc5a7ee19560d9cb0ad870610672f569d8450e304ccde3aa718"
+    }
+  ]
+}

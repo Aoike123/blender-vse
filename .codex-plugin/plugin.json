@@ -1,0 +1,43 @@
+{
+  "name": "blender-vse",
+  "version": "0.1.0",
+  "description": "Low-context local Blender video editing through one focused Skill and four-tool MCP server.",
+  "author": {
+    "name": "Aoike",
+    "url": "https://github.com/Aoike123"
+  },
+  "homepage": "https://github.com/Aoike123/blender-vse-control#readme",
+  "repository": "https://github.com/Aoike123/blender-vse-control",
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "blender",
+    "vse",
+    "video-editing",
+    "mcp",
+    "stateful-agent"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Blender VSE Control",
+    "shortDescription": "Low-context, focused Blender video editing",
+    "longDescription": "A focused Blender video-editing Skill with bounded context, editable timelines, and revision-safe local execution. Pair it with creation Skills and enjoy the edit.",
+    "developerName": "Aoike",
+    "category": "Productivity",
+    "capabilities": [
+      "Local",
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Aoike123/blender-vse-control",
+    "defaultPrompt": [
+      "Inspect this Blender VSE project and summarize its editable timeline.",
+      "Continue editing this .blend safely from a fresh observation.",
+      "Verify this Blender VSE project and report persistence warnings."
+    ],
+    "brandColor": "#E87D0D",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png"
+  }
+}

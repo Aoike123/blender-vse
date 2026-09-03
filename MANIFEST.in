@@ -1,0 +1,27 @@
+include CHANGELOG.md
+include CHANGELOG_zh-CN.md
+include .mcp.json
+include install-contract.json
+include CODE_OF_CONDUCT.md
+include CODE_OF_CONDUCT_zh-CN.md
+include CONTRIBUTING.md
+include CONTRIBUTING_zh-CN.md
+include README_zh-CN.md
+include RELEASING.md
+include RELEASING_zh-CN.md
+include SECURITY.md
+include SECURITY_zh-CN.md
+include THIRD_PARTY_NOTICES.md
+include THIRD_PARTY_NOTICES_zh-CN.md
+recursive-include LICENSES *.txt
+recursive-include .codex-plugin *.json
+recursive-include .claude-plugin *.json
+recursive-include .agents/plugins *.json
+recursive-include assets *.json *.png *.svg
+recursive-include clients *.json
+recursive-include docs *.md
+recursive-include evals *.json *.md
+recursive-include examples *.py
+recursive-include scripts *.py
+recursive-include skills *.md *.png *.yaml *.json *.py
+recursive-include tests *.py *.md *.json

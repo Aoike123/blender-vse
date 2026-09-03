@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+.wheel-check/
+venv/
+build/
+dist/
+.tmp-wheel/
+.uv-cache/
+
+# Blender and generated media
+*.blend1
+*.blend2
+projects/
+renders/
+checkpoints/
+*.mp4
+*.mov
+*.mkv
+tests/fixtures/media/
+
+# Runtime
+.tmp/
+.agents/skills/
+skills-lock.json
+uv.lock
+*.log
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

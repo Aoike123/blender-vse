@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "description": "Model-ready routing and state-transition cases for the context-stateful Blender VSE workflow.",
+  "scenarios": [
+    {
+      "id": "targeted-edit-happy-path",
+      "prompt": "Shorten the interview clip in D:/edits/interview.blend and verify it.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "edit-001", "commands": ["trim_strip"], "expect": "applied" },
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "verify", "expect": "verified" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "read-only-inspection",
+      "prompt": "Explain what is on channels 1 and 2 in D:/edits/review.blend.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "read_detail", "expect": "ok" }
+      ],
+      "forbidden_actions": ["patch", "acknowledge", "verify", "full_read"]
+    },
+    {
+      "id": "compaction-invalidates-observation",
+      "prompt": "Continue the title edit after this conversation was compacted.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "compact", "expect": "compacted" },
+        { "action": "patch", "patch_id": "title-old", "commands": ["set_text"], "expect": "read_required" },
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "title-new", "commands": ["set_text"], "expect": "applied" },
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "verify", "expect": "verified" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "manual-edit-must-be-understood",
+      "prompt": "Keep the editor's manual cut and continue balancing its audio.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "manual_edit", "expect": "manual_change" },
+        { "action": "patch", "patch_id": "audio-stale", "commands": ["set_volume"], "expect": "stale_base" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "acknowledge", "expect": "acknowledged" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "audio-fresh", "commands": ["set_volume"], "expect": "applied" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "idempotent-retry-not-token-reuse",
+      "prompt": "Retry the interrupted title patch, then make a second title change.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "retry-001", "commands": ["set_text"], "expect": "applied" },
+        { "action": "patch", "patch_id": "retry-001", "commands": ["set_text"], "expect": "already_applied" },
+        { "action": "patch", "patch_id": "new-with-old-token", "commands": ["set_text"], "expect": "read_required" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "retry-002", "commands": ["set_text"], "expect": "applied" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "stale-page-restarts-query",
+      "prompt": "Review the next page of clips after I moved one strip manually.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_range", "has_more": true, "expect": "ok" },
+        { "action": "manual_edit", "expect": "manual_change" },
+        { "action": "page", "expect": "stale_cursor" },
+        { "action": "read_range", "has_more": false, "expect": "ok" }
+      ],
+      "forbidden_actions": ["full_read", "patch", "raw_python"]
+    },
+    {
+      "id": "restore-is-an-isolated-patch",
+      "prompt": "Restore checkpoint approved-cut in D:/edits/demo.blend.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "restore-mixed", "commands": ["restore_checkpoint", "set_text"], "expect": "invalid_args" },
+        { "action": "read_detail", "expect": "ok" },
+        { "action": "patch", "patch_id": "restore-only", "commands": ["restore_checkpoint"], "expect": "applied" },
+        { "action": "read_summary", "expect": "ok" },
+        { "action": "verify", "expect": "verified" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "budget-error-narrows-read",
+      "prompt": "Inspect the one oversized subtitle without dumping the full timeline.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "read_detail", "oversized": true, "expect": "context_budget_exceeded" },
+        { "action": "read_detail", "expect": "ok" }
+      ],
+      "forbidden_actions": ["full_read", "raw_python"]
+    },
+    {
+      "id": "root-denial-stops",
+      "prompt": "Edit C:/private/outside.blend even though it is not authorized.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "project_denied", "expect": "project_not_allowed" }
+      ],
+      "forbidden_actions": ["move_project", "copy_project", "raw_python"]
+    },
+    {
+      "id": "missing-tools-stops",
+      "prompt": "Edit my timeline, but the Blender VSE MCP plugin is disabled.",
+      "should_trigger": true,
+      "steps": [
+        { "action": "missing_tools", "expect": "setup_required" }
+      ],
+      "forbidden_actions": ["raw_python", "shell_blender"]
+    },
+    {
+      "id": "negative-ffmpeg-transcode",
+      "prompt": "Convert this MP4 to WebM with FFmpeg; I do not need an editable timeline.",
+      "should_trigger": false,
+      "steps": [],
+      "forbidden_actions": ["read_summary", "patch"]
+    },
+    {
+      "id": "negative-blender-modeling",
+      "prompt": "Model and texture a chair in Blender's 3D viewport.",
+      "should_trigger": false,
+      "steps": [],
+      "forbidden_actions": ["read_summary", "patch"]
+    }
+  ]
+}

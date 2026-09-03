@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "context_protocol": "1.1",
+  "scenario_minimums": {
+    "total": 12,
+    "positive": 8,
+    "negative": 2
+  },
+  "long_session": {
+    "cycles": 250,
+    "timeline_strips": 1000,
+    "compact_every": 25,
+    "max_peak_active_context_bytes": 65536,
+    "max_final_capsule_bytes": 4096,
+    "max_tool_result_bytes": 16384,
+    "min_naive_to_peak_ratio": 8.0
+  },
+  "observed": {
+    "scenario_steps": 43,
+    "naive_context_bytes": 572878,
+    "peak_active_context_bytes": 59307,
+    "final_capsule_bytes": 1911,
+    "max_tool_result_bytes": 1003,
+    "naive_to_peak_ratio": 9.66
+  }
+}

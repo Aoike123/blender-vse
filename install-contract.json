@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "plugin": "blender-vse",
+  "components": {
+    "skills": [
+      "blender-vse"
+    ],
+    "mcp_servers": [
+      "blender-vse-control"
+    ],
+    "mcp_tools": [
+      "blender_read",
+      "blender_patch",
+      "blender_acknowledge",
+      "blender_verify"
+    ]
+  },
+  "states": {
+    "installed": "The Skill and MCP integration are registered, but required user setup may remain.",
+    "ready": "The project directory is user-confirmed, runtime bootstrap is available, and required dependency checks have completed."
+  },
+  "workflow": [
+    "detect_or_bootstrap_uv_with_user_approval",
+    "install_client_components",
+    "detect_or_request_workspace",
+    "ask_user_to_confirm_projects_dir",
+    "configure_projects_dir_and_allowed_root",
+    "guide_missing_blender_or_ffmpeg",
+    "restart_or_open_a_new_session",
+    "verify_one_skill_one_server_four_tools_and_effective_directory"
+  ],
+  "project_storage": {
+    "variable": "BLENDER_VSE_PROJECTS_DIR",
+    "allowed_roots_variable": "BLENDER_VSE_ALLOWED_ROOTS",
+    "required_after_install": true,
+    "must_be_absolute": true,
+    "never_use_plugin_cache": true,
+    "prompt_zh_CN": "Blender VSE 已安装，但尚未完成项目目录配置。请告诉我你希望把 .blend 项目保存在哪个绝对目录。",
+    "prompt_en": "Blender VSE is installed, but project storage is not configured. Which absolute directory should contain your editable .blend projects?"
+  },
+  "workspace_policy": {
+    "workspace_preferred": true,
+    "recommended_relative_projects_dir": "blender-vse-projects",
+    "when_workspace_unavailable": "recommend_select_workspace_then_require_confirmation",
+    "when_projects_dir_is_outside": "warn_and_require_explicit_confirmation",
+    "external_projects_allowed_after_confirmation": true,
+    "never_move_existing_files_implicitly": true,
+    "prompt_no_workspace_zh_CN": "当前 Harness 没有可确认的工作区。建议先打开或选择工作区，并把 Blender VSE 项目与素材目录放在工作区内。",
+    "prompt_outside_workspace_zh_CN": "所选项目与素材目录位于当前工作区外。建议改用工作区内的 blender-vse-projects；若继续使用外部目录，请明确确认。"
+  },
+  "runtime": {
+    "python": {
+      "strategy": "uv-managed",
+      "version": "3.12",
+      "system_python_required": false,
+      "uv_preinstalled_required": false,
+      "if_uv_missing": "request_permission_then_install_from_official_source",
+      "install_url": "https://docs.astral.sh/uv/getting-started/installation/"
+    },
+    "blender": {
+      "installation": "guided",
+      "required_for_editing": true,
+      "install_url": "https://www.blender.org/download/"
+    },
+    "ffmpeg": {
+      "installation": "guided",
+      "required_for": [
+        "proxy generation",
+        "media test fixtures"
+      ],
+      "install_url": "https://ffmpeg.org/download.html"
+    }
+  },
+  "clients": {
+    "codex": {
+      "installation": "repository-marketplace",
+      "ready_requires_project_directory": true,
+      "ready_requires_workspace_advisory_resolved": true
+    },
+    "claude-code": {
+      "installation": "claude-marketplace",
+      "ready_requires_project_directory": true,
+      "ready_requires_workspace_advisory_resolved": true
+    },
+    "dsh": {
+      "installation": "skill-copy-and-cordis-patch",
+      "ready_requires_project_directory": true,
+      "ready_requires_workspace_advisory_resolved": true
+    }
+  }
+}

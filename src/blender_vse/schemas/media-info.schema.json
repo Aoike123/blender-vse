@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blender-vse:schema:media-info",
+  "title": "MediaInfo — unified media facts model (single source of truth)",
+  "description": "Canonical media facts produced by the Blender-native inspect_media operation. Values are not re-derived with ffprobe; fps follows Blender's native decode result (for example, a 29.97 source may report 30.0).",
+  "type": "object",
+  "required": ["path", "kind", "duration", "fps", "width", "height",
+               "video_codec", "audio_codec", "audio_channels", "sample_rate",
+               "native"],
+  "properties": {
+    "path": { "type": "string", "description": "Absolute path of the inspected media file." },
+    "kind": { "enum": ["video", "audio"] },
+    "duration": { "type": ["number", "null"], "description": "Seconds, decoded frames / SOURCE fps." },
+    "fps": { "type": ["number", "null"], "description": "Source fps (video only; null for audio). Blender-native whole-number value." },
+    "width": { "type": ["integer", "null"], "description": "Source pixel width (video only)." },
+    "height": { "type": ["integer", "null"], "description": "Source pixel height (video only)." },
+    "video_codec": { "type": ["string", "null"], "description": "Always null — Blender's native API does not expose codec strings." },
+    "audio_codec": { "type": ["string", "null"], "description": "Always null — not exposed by the native API." },
+    "audio_channels": { "type": ["integer", "null"], "description": "MONO=1 / STEREO=2, decoded from the sound datablock." },
+    "sample_rate": { "type": ["integer", "null"], "description": "Always null — not exposed by the native API." },
+    "native": {
+      "type": "object",
+      "description": "Provenance + raw native fields so consumers can audit where facts came from.",
+      "properties": {
+        "source": { "const": "blender-native" },
+        "method": { "enum": ["vse_movie", "vse_sound"] },
+        "strip_frame_duration": { "type": ["integer", "null"] },
+        "sound_frame_duration": { "type": ["integer", "null"] },
+        "orig_fps": { "type": ["number", "null"] },
+        "orig_width": { "type": ["integer", "null"] },
+        "orig_height": { "type": ["integer", "null"] },
+        "sound_channels": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "additionalProperties": true
+}

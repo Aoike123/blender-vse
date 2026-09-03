@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "blender-vse",
+  "displayName": "Blender VSE Control",
+  "version": "0.1.0",
+  "description": "Low-context local Blender video editing with one focused Skill and a four-tool MCP server.",
+  "author": {
+    "name": "Aoike",
+    "url": "https://github.com/Aoike123"
+  },
+  "homepage": "https://github.com/Aoike123/blender-vse-control#readme",
+  "repository": "https://github.com/Aoike123/blender-vse-control",
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "blender",
+    "vse",
+    "video-editing",
+    "mcp",
+    "agent-skill"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./clients/claude/mcp.json",
+  "userConfig": {
+    "projects_dir": {
+      "type": "directory",
+      "title": "Blender VSE project directory",
+      "description": "Absolute directory for editable .blend projects and media. Prefer <workspace>/blender-vse-projects; an external directory requires confirmation.",
+      "required": true
+    }
+  }
+}

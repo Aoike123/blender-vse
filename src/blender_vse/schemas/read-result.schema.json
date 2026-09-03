@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blender-vse:schema:read-result",
+  "title": "BoundedReadResult",
+  "description": "Context projection returned in the data field of a successful blender_read.",
+  "type": "object",
+  "required": [
+    "project",
+    "revision",
+    "timeline_hash",
+    "observation_id",
+    "summary",
+    "strips",
+    "context",
+    "session"
+  ],
+  "properties": {
+    "project": { "type": "string" },
+    "revision": { "type": "integer" },
+    "timeline_hash": { "type": "string" },
+    "observation_id": { "type": "string" },
+    "scene": { "type": ["string", "null"] },
+    "fps": { "type": ["number", "null"] },
+    "resolution": {
+      "type": ["array", "null"],
+      "items": { "type": "integer" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "frame_start": { "type": ["integer", "null"] },
+    "frame_end": { "type": ["integer", "null"] },
+    "playhead": { "type": ["integer", "null"] },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_strips",
+        "matched_strips",
+        "counts_by_type",
+        "counts_by_channel",
+        "content_bounds"
+      ],
+      "properties": {
+        "total_strips": { "type": "integer", "minimum": 0 },
+        "matched_strips": { "type": "integer", "minimum": 0 },
+        "counts_by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "counts_by_channel": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "content_bounds": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "type": "integer" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "strips": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "context": {
+      "type": "object",
+      "required": ["protocol_version", "view", "bounded", "response_bytes"],
+      "properties": {
+        "protocol_version": { "const": "1.1" },
+        "view": { "enum": ["summary", "range", "detail", "full"] },
+        "bounded": { "type": "boolean" },
+        "max_bytes": { "type": "integer", "minimum": 1 },
+        "matched": { "type": "integer", "minimum": 0 },
+        "returned": { "type": "integer", "minimum": 0 },
+        "has_more": { "type": "boolean" },
+        "next_cursor": { "type": ["string", "null"] },
+        "response_bytes": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "session": { "type": "object" }
+  },
+  "additionalProperties": true
+}

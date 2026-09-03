@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blender-vse:schema:proxy-manifest",
+  "title": "ExternalProxyManifest",
+  "description": "Verified FFmpeg proxy metadata accepted by attach_proxy.",
+  "type": "object",
+  "required": [
+    "version",
+    "tool",
+    "tool_version",
+    "profile",
+    "scale",
+    "project_dir",
+    "source_path",
+    "source_sha256",
+    "source_size",
+    "source_mtime_ns",
+    "proxy_path",
+    "proxy_sha256",
+    "proxy_size",
+    "source_facts",
+    "proxy_facts",
+    "verified",
+    "created_at"
+  ],
+  "properties": {
+    "version": { "const": "1.0" },
+    "tool": { "type": "string", "minLength": 1 },
+    "tool_version": { "type": "string", "minLength": 1 },
+    "profile": { "const": "blender-mjpeg" },
+    "scale": { "enum": [25, 50, 75, 100] },
+    "project_dir": { "type": "string", "minLength": 1 },
+    "source_path": { "type": "string", "minLength": 1 },
+    "source_sha256": { "$ref": "#/$defs/sha256" },
+    "source_size": { "type": "integer", "minimum": 1 },
+    "source_mtime_ns": { "type": "integer", "minimum": 0 },
+    "proxy_path": { "type": "string", "minLength": 1 },
+    "proxy_sha256": { "$ref": "#/$defs/sha256" },
+    "proxy_size": { "type": "integer", "minimum": 1 },
+    "source_facts": { "type": "object" },
+    "proxy_facts": { "type": "object" },
+    "verified": { "const": true },
+    "created_at": { "type": "number" }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "blender-vse",
+  "owner": {
+    "name": "Aoike",
+    "url": "https://github.com/Aoike123"
+  },
+  "description": "Editable Blender VSE control for local coding agents.",
+  "plugins": [
+    {
+      "name": "blender-vse",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Aoike123/blender-vse-control.git",
+        "ref": "main"
+      },
+      "description": "Safely inspect, edit, recover, render, and verify local Blender VSE projects.",
+      "category": "Productivity",
+      "tags": [
+        "blender",
+        "video-editing",
+        "mcp"
+      ]
+    }
+  ]
+}

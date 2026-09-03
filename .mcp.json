@@ -1,0 +1,63 @@
+{
+  "mcpServers": {
+    "blender-vse-control": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "--managed-python",
+        "--python",
+        "3.12",
+        "--with",
+        "mcp==2.1.1",
+        "python",
+        "scripts/run_plugin_mcp.py"
+      ],
+      "cwd": ".",
+      "enabled": true,
+      "default_tools_approval_mode": "approve",
+      "tools": {
+        "blender_patch": {
+          "approval_mode": "prompt"
+        },
+        "blender_acknowledge": {
+          "approval_mode": "prompt"
+        }
+      },
+      "env_vars": [
+        "PATH",
+        "HOME",
+        "USERPROFILE",
+        "APPDATA",
+        "LOCALAPPDATA",
+        "XDG_DATA_HOME",
+        "SYSTEMROOT",
+        "WINDIR",
+        "TEMP",
+        "TMP",
+        "TMPDIR",
+        "UV_CACHE_DIR",
+        "UV_OFFLINE",
+        "UV_PYTHON",
+        "BLENDER_VSE_ALLOWED_ROOTS",
+        "BLENDER_VSE_BLENDER_EXECUTABLE",
+        "BLENDER_VSE_EXECUTION",
+        "BLENDER_VSE_STATE_DIR",
+        "BLENDER_VSE_PROJECTS_DIR",
+        "BLENDER_VSE_TMP_DIR",
+        "BLENDER_VSE_FFMPEG",
+        "BLENDER_VSE_FFPROBE",
+        "BLENDER_VSE_AUTOSTART",
+        "BLENDER_VSE_START_TIMEOUT",
+        "BLENDER_VSE_VISIBILITY_GRACE",
+        "BLENDER_VSE_STABILITY_SAMPLES",
+        "BLENDER_VSE_STABILITY_INTERVAL",
+        "BLENDER_BRIDGE_HOST",
+        "BLENDER_BRIDGE_PORT",
+        "BLENDER_BRIDGE_TIMEOUT"
+      ],
+      "startup_timeout_sec": 120,
+      "tool_timeout_sec": 3600
+    }
+  }
+}

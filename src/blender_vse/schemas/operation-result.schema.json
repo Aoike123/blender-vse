@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:blender-vse:schema:operation-result",
+  "title": "OperationResult",
+  "description": "Uniform result envelope returned by every adapter/tool. Success carries data; failure carries a structured error. dry_run results are marked and never modify state.",
+  "type": "object",
+  "required": ["ok", "op"],
+  "properties": {
+    "ok": {
+      "type": "boolean",
+      "description": "true = success, false = failure."
+    },
+    "op": {
+      "type": "string",
+      "description": "The operation that was executed."
+    },
+    "adapter": {
+      "type": "string",
+      "enum": ["blender", "router"],
+      "description": "Which adapter executed the op."
+    },
+    "dry_run": {
+      "type": "boolean",
+      "default": false,
+      "description": "true = nothing was modified; result is a simulation/validation."
+    },
+    "data": {
+      "description": "Success payload. Ops like list_strips/get_timeline_info return TimelineState-compatible data here."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable summary."
+    },
+    "error": {
+      "type": "object",
+      "description": "Present only when ok=false.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "asset_binding_stale",
+            "asset_binding_type_mismatch",
+            "asset_registry_externalized",
+            "asset_source_mismatch",
+            "backup_failed",
+            "batch",
+            "blender_exited",
+            "blender_missing",
+            "bootstrap_missing",
+            "bridge_error",
+            "bridge_not_ready",
+            "bridge_unreachable",
+            "checkpoint_copy_failed",
+            "checkpoint_not_found",
+            "checkpoint_reopen_failed",
+            "context_budget_exceeded",
+            "execution_failed",
+            "gui_not_stable",
+            "gui_not_visible",
+            "hidden_session_repair_failed",
+            "input_missing",
+            "internal_primitive",
+            "invalid_args",
+            "invalid_cli_input",
+            "invalid_cursor",
+            "invalid_proxy_manifest",
+            "invalid_read_token",
+            "invalid_read_query",
+            "invalid_render_range",
+            "launch_failed",
+            "not_found",
+            "operation_externalized",
+            "overlap_detected",
+            "patch_rolled_back",
+            "preview_resolution_must_be_integer_scale",
+            "project_mismatch",
+            "project_not_found",
+            "project_open_failed",
+            "proxy_custom_file_unsupported",
+            "proxy_generation_externalized",
+            "proxy_source_mismatch",
+            "read_required",
+            "restore_session_close_failed",
+            "restore_session_close_timeout",
+            "restore_session_not_ready",
+            "revision_mismatch",
+            "session_close_failed",
+            "session_discovery_timeout",
+            "session_identity_pending",
+            "session_not_ready",
+            "stale_base",
+            "stale_cursor",
+            "stale_observation",
+            "stale_proxy_source",
+            "strip_not_found",
+            "timeout",
+            "unsaved_session_dirty",
+            "unsupported",
+            "validation_failed",
+            "vse_content_not_framed",
+            "vse_current_frame_empty",
+            "vse_media_missing",
+            "vse_not_visible",
+            "vse_scene_mismatch",
+            "vse_scene_unbound",
+            "vse_visible_strip_mismatch",
+            "window_ambiguous"
+          ]
+        },
+        "message": { "type": "string" },
+        "details": {
+          "description": "Optional structured detail (stderr, traceback, etc.)."
+        }
+      },
+      "required": ["code", "message"]
+    },
+    "timeline_after": {
+      "description": "For mutating ops, the re-read TimelineState after execution (verify step). Present when available."
+    }
+  },
+  "additionalProperties": true
+}

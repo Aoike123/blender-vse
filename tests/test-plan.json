@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "profiles": {
+    "fast": {
+      "kind": "pytest",
+      "description": "Blender-free unit and cross-file contract gate",
+      "requires": ["python", "pytest", "jsonschema"],
+      "target_seconds": 3,
+      "timeout_seconds": 10,
+      "args": [
+        "tests/unit",
+        "tests/contract",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--ignore=tests/contract/test_mcp_server.py"
+      ]
+    },
+    "coverage": {
+      "kind": "pytest",
+      "description": "Fast gate with branch coverage for host-side Python",
+      "requires": ["python", "pytest", "pytest-cov", "jsonschema"],
+      "target_seconds": 5,
+      "timeout_seconds": 15,
+      "args": [
+        "tests/unit",
+        "tests/contract",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--cov=blender_vse",
+        "--cov-report=term-missing:skip-covered",
+        "--ignore=tests/contract/test_mcp_server.py"
+      ]
+    },
+    "mcp": {
+      "kind": "pytest",
+      "description": "Four-tool schemas, mappings, errors, and real stdio discovery",
+      "requires": ["python", "pytest", "pytest-cov", "mcp"],
+      "target_seconds": 4,
+      "timeout_seconds": 10,
+      "args": [
+        "tests/unit/test_mcp_boundary.py",
+        "tests/contract/test_mcp_server.py",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--cov=blender_vse.mcp",
+        "--cov-report=term-missing:skip-covered",
+        "--cov-fail-under=85"
+      ]
+    },
+    "plugin": {
+      "kind": "scripts",
+      "description": "Launch the exact plugin stdio command and inspect discovery",
+      "requires": ["python", "mcp", "uv"],
+      "target_seconds": 60,
+      "timeout_seconds": 180,
+      "scripts": [
+        {
+          "path": "tests/plugin/stdio_smoke.py",
+          "label": "plugin-declared stdio discovery",
+          "timeout_seconds": 150,
+          "direct_mutation": false
+        }
+      ]
+    },
+    "harness": {
+      "kind": "scripts",
+      "description": "Validate Claude packaging and DSH Skill/Cordis composition with real CLIs",
+      "requires": ["python", "node", "npx", "dsh", "uv"],
+      "target_seconds": 60,
+      "timeout_seconds": 180,
+      "scripts": [
+        {
+          "path": "tests/clients/harness_smoke.py",
+          "label": "Claude and DSH client packaging",
+          "timeout_seconds": 160,
+          "direct_mutation": false
+        }
+      ]
+    },
+    "stateful": {
+      "kind": "scripts",
+      "description": "Replay compaction scenarios and a 250-cycle bounded context session",
+      "requires": ["python", "jsonschema"],
+      "target_seconds": 5,
+      "timeout_seconds": 15,
+      "scripts": [
+        {
+          "path": "tests/evals/stateful_workflow.py",
+          "label": "stateful context and compaction eval",
+          "timeout_seconds": 12,
+          "direct_mutation": false
+        }
+      ]
+    },
+    "blender-headless": {
+      "kind": "scripts",
+      "description": "Native media decode without opening the interactive editor",
+      "requires": ["python", "blender", "ffmpeg"],
+      "target_seconds": 15,
+      "timeout_seconds": 60,
+      "fixtures": true,
+      "execution": "headless",
+      "environment": {
+        "BLENDER_VSE_TEST_LIVE": "0"
+      },
+      "scripts": [
+        {
+          "path": "tests/integration/media_inspector.py",
+          "label": "native media inspector",
+          "timeout_seconds": 50,
+          "direct_mutation": false
+        }
+      ]
+    },
+    "blender-smoke": {
+      "kind": "scripts",
+      "description": "One public read-patch-read-verify workflow in a visible GUI",
+      "requires": ["python", "blender", "ffmpeg", "visible-gui"],
+      "target_seconds": 120,
+      "timeout_seconds": 240,
+      "fixtures": true,
+      "execution": "live_session",
+      "scripts": [
+        {
+          "path": "tests/integration/smoke_workflow.py",
+          "label": "public API smoke workflow",
+          "timeout_seconds": 220,
+          "direct_mutation": false
+        }
+      ]
+    },
+    "blender-full": {
+      "kind": "scripts",
+      "description": "Complete registered Blender regression suite",
+      "requires": ["python", "blender", "ffmpeg", "visible-gui"],
+      "target_seconds": 900,
+      "timeout_seconds": 1200,
+      "fixtures": true,
+      "execution": "live_session",
+      "environment": {
+        "BLENDER_VSE_TEST_LIVE": "1"
+      },
+      "scripts": [
+        {
+          "path": "tests/integration/smoke_workflow.py",
+          "label": "public API smoke workflow",
+          "timeout_seconds": 300,
+          "direct_mutation": false
+        },
+        {
+          "path": "tests/integration/media_inspector.py",
+          "label": "native media inspector",
+          "timeout_seconds": 180,
+          "direct_mutation": false
+        },
+        {
+          "path": "tests/integration/revision_hardening.py",
+          "label": "revision and collaboration hardening",
+          "timeout_seconds": 300,
+          "direct_mutation": false
+        },
+        {
+          "path": "tests/integration/timeline_baseline.py",
+          "label": "timeline baseline",
+          "timeout_seconds": 180,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/write_operations.py",
+          "label": "core write operations",
+          "timeout_seconds": 240,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/text_and_fonts.py",
+          "label": "fonts and text styling",
+          "timeout_seconds": 180,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/persistence.py",
+          "label": "fresh-process persistence",
+          "timeout_seconds": 240,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/assembly_and_subtitles.py",
+          "label": "assembly and subtitles",
+          "timeout_seconds": 240,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/execution_governance.py",
+          "label": "execution governance",
+          "timeout_seconds": 240,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/nle_operations.py",
+          "label": "NLE edit operations",
+          "timeout_seconds": 300,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/extended_operations.py",
+          "label": "extended edit operations",
+          "timeout_seconds": 360,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/incremental_revision.py",
+          "label": "incremental revision workflow",
+          "timeout_seconds": 300,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/live_session_test.py",
+          "label": "visible session behavior",
+          "timeout_seconds": 300,
+          "direct_mutation": true
+        },
+        {
+          "path": "tests/integration/end_to_end.py",
+          "label": "end-to-end workflow",
+          "timeout_seconds": 300,
+          "direct_mutation": true
+        }
+      ]
+    }
+  }
+}

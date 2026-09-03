@@ -1,0 +1,380 @@
+{
+  "version": 1,
+  "catalog_version": "1.0",
+  "description": "Patch operations approved for the blender-vse Skill. Project and revision fields belong to the outer MCP tool call.",
+  "total_commands": 108,
+  "policy_exclusions": {
+    "acknowledge_revision": "use the dedicated blender_acknowledge tool",
+    "apply_patch": "the outer blender_patch tool already owns the transaction",
+    "batch": "the outer blender_patch command list is already atomic",
+    "configure_vse_layout": "visible-session setup owns the editor layout",
+    "create_project": "use blender_read with create_if_missing=true",
+    "save_project": "a successful outer patch saves the project"
+  },
+  "families": {
+    "timeline": {
+      "clear_vse": {
+        "signature": "()"
+      },
+      "set_frame_range": {
+        "signature": "(frame_start: int = 1, frame_end: int = 250)"
+      }
+    },
+    "add": {
+      "add_color": {
+        "signature": "(channel: int = 1, frame_start: int = 1, length: int = 120, color = (0.0, 0.0, 0.0), strip_name: str = '')"
+      },
+      "add_effect": {
+        "signature": "(effect_type: str = 'GAUSSIAN_BLUR', channel: int = 3, frame_start: int = 1, length: int = 30, strip_name: str = '')"
+      },
+      "add_image": {
+        "signature": "(asset: str, channel: int = 1, frame_start: int = 1, length: int = 48, strip_name: str = '', asset_id: str = '', asset_revision: int = 1)"
+      },
+      "add_image_sequence": {
+        "signature": "(directory: str, channel: int = 1, frame_start: int = 1, frame_end: int = 60, strip_name: str = '')"
+      },
+      "add_movie": {
+        "signature": "(asset: str, channel: int = 1, frame_start: int = 1, strip_name: str = '', fit_method: str = 'FIT', asset_id: str = '', asset_revision: int = 1)"
+      },
+      "add_scene": {
+        "signature": "(scene_name: str = 'Scene', channel: int = 1, frame_start: int = 1, strip_name: str = '')"
+      },
+      "add_sound": {
+        "signature": "(asset: str, channel: int = 2, frame_start: int = 1, strip_name: str = '', asset_id: str = '', asset_revision: int = 1)"
+      },
+      "add_subtitle_track": {
+        "signature": "(segments = None, srt_path: str | None = None, channel: int = 3, fps: float = 30.0, font_size: float = 48.0, position = (0.5, 0.12), strip_prefix: str = 'Sub_', align: str = 'CENTER', allow_overlap: bool = False)"
+      },
+      "add_text": {
+        "signature": "(text: str, channel: int = 2, frame_start: int = 1, length: int = 120, font_size: float = 48.0, position = (0.5, 0.5), strip_name: str = '')"
+      },
+      "add_transition": {
+        "signature": "(strip_a: str, strip_b: str, transition_type: str = 'CROSS', channel: int = 3, transition_frames: int = 15)"
+      },
+      "assemble_clips": {
+        "signature": "(clips = None, channel: int = 1, fps: float = 30.0, strip_prefix: str = 'Clip_', gap_frames: int = 0)"
+      }
+    },
+    "edit": {
+      "change_channel": {
+        "signature": "(target: str, channel: int)"
+      },
+      "cut_strip": {
+        "signature": "(target: str, frame: int)"
+      },
+      "delete_strip": {
+        "signature": "(target: str)"
+      },
+      "lock": {
+        "signature": "(target: str, lock: bool = True)"
+      },
+      "move": {
+        "signature": "(target: str, timeline_start: float | None = None, frame_start: int | None = None, track: str | None = None, channel: int | None = None, fps: float | None = None, swap: bool = False)"
+      },
+      "mute": {
+        "signature": "(target: str, mute: bool = True)"
+      },
+      "set_blend": {
+        "signature": "(target: str, blend_type: str = 'ALPHA_OVER', opacity: float | None = None)"
+      },
+      "set_crop": {
+        "signature": "(target: str, crop: dict | None = None)"
+      },
+      "set_opacity": {
+        "signature": "(target: str, opacity: float = 1.0)"
+      },
+      "set_speed": {
+        "signature": "(target: str, speed_factor: float = 1.0)"
+      },
+      "set_transform": {
+        "signature": "(target: str, position = None, scale = None, rotation: float | None = None)"
+      },
+      "trim_strip": {
+        "signature": "(target: str, source_in: float | None = None, source_out: float | None = None, frame_start: int | None = None, frame_end: int | None = None, fps: float | None = None)"
+      }
+    },
+    "nle": {
+      "close_all_gaps": {
+        "signature": "(channel: int | None = None)"
+      },
+      "close_gap": {
+        "signature": "(channel: int | None = None, start: int | None = None, end: int | None = None)"
+      },
+      "extract_edit": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None)"
+      },
+      "insert_edit": {
+        "signature": "(asset: str, channel: int = 1, at_frame: int = 1, source_in: float | None = None, source_out: float | None = None, fps: float = 30.0, strip_name: str = '')"
+      },
+      "lift_edit": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None)"
+      },
+      "nudge_end": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, frames: int = 1)"
+      },
+      "nudge_start": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, frames: int = 1)"
+      },
+      "overwrite_edit": {
+        "signature": "(asset: str, channel: int = 1, at_frame: int = 1, strip_name: str = '')"
+      },
+      "reorder_clips": {
+        "signature": "(order = None, channel: int = 1, ripple: bool = True)"
+      },
+      "replace_clip": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, asset: str = '')"
+      },
+      "ripple_delete": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, channel: int | None = None)"
+      },
+      "ripple_insert": {
+        "signature": "(asset: str, channel: int = 1, at_frame: int = 1, source_in: float | None = None, source_out: float | None = None, fps: float = 30.0, strip_name: str = '')"
+      },
+      "roll_trim": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, frames: int = 0, edge: str = 'in')"
+      },
+      "slide": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, frames: int = 0)"
+      },
+      "slip": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, source_in: float | None = None, fps: float = 30.0)"
+      },
+      "swap_clips": {
+        "signature": "(a: str | None = None, b: str | None = None, a_id: str | None = None, b_id: str | None = None)"
+      }
+    },
+    "text": {
+      "set_alignment": {
+        "signature": "(target: str, alignment: str = 'CENTER')"
+      },
+      "set_box": {
+        "signature": "(target: str, box: bool = True)"
+      },
+      "set_font": {
+        "signature": "(target: str, font: str)"
+      },
+      "set_font_size": {
+        "signature": "(target: str, font_size: float)"
+      },
+      "set_outline": {
+        "signature": "(target: str, outline: bool = True, outline_width: float | None = None)"
+      },
+      "set_shadow": {
+        "signature": "(target: str, shadow: bool = True)"
+      },
+      "set_text": {
+        "signature": "(target: str, text: str)"
+      },
+      "set_text_position": {
+        "signature": "(target: str, position)"
+      }
+    },
+    "metadata": {
+      "ensure_strip_ids": {
+        "signature": "()"
+      },
+      "set_strip_metadata": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, metadata: dict | None = None)"
+      }
+    },
+    "playhead": {
+      "move_playhead": {
+        "signature": "(delta_frames: int)"
+      },
+      "set_playhead": {
+        "signature": "(frame: int)"
+      }
+    },
+    "markers": {
+      "add_marker": {
+        "signature": "(name: str, frame: int, metadata: dict | None = None)"
+      },
+      "delete_marker": {
+        "signature": "(name: str)"
+      },
+      "move_marker": {
+        "signature": "(name: str, frame: int)"
+      },
+      "update_marker": {
+        "signature": "(name: str, frame: int | None = None, metadata: dict | None = None)"
+      }
+    },
+    "checkpoints": {
+      "create_checkpoint": {
+        "signature": "(name: str)"
+      },
+      "delete_checkpoint": {
+        "signature": "(name: str)"
+      }
+    },
+    "text_styles": {
+      "apply_text_style": {
+        "signature": "(style: str, target: str | None = None, video_ai_id: str | None = None, role: str | None = None)"
+      },
+      "create_text_style": {
+        "signature": "(name: str, style: dict)"
+      },
+      "delete_text_style": {
+        "signature": "(name: str)"
+      },
+      "update_text_style": {
+        "signature": "(name: str, style: dict)"
+      }
+    },
+    "subtitles": {
+      "delete_subtitle_range": {
+        "signature": "(start_frame: int, end_frame: int, channel: int | None = None)"
+      },
+      "import_srt": {
+        "signature": "(srt_path: str, channel: int = 3, fps: float = 30.0, font_size: float = 48.0, position = (0.5, 0.12), strip_prefix: str = 'Sub_', allow_overlap: bool = False)"
+      },
+      "merge_subtitles": {
+        "signature": "(video_ai_ids: list | None = None, targets: list | None = None)"
+      },
+      "replace_subtitle_text": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, text: str = '')"
+      },
+      "retime_subtitles": {
+        "signature": "(video_ai_ids: list | None = None, targets: list | None = None, offset_frames: int = 0, scale: float = 1.0)"
+      },
+      "shift_subtitles": {
+        "signature": "(video_ai_ids: list | None = None, targets: list | None = None, delta_frames: int = 0)"
+      },
+      "split_subtitle": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, frame: int = 1)"
+      }
+    },
+    "animation": {
+      "add_keyframe": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, frame: int = 1, props: dict | None = None)"
+      },
+      "clear_keyframes": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None)"
+      },
+      "delete_keyframe": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, frame: int = 1)"
+      },
+      "fade_in": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, duration_frames: int = 24)"
+      },
+      "fade_out": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, duration_frames: int = 24)"
+      },
+      "punch_in": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, scale: float = 1.15, duration_frames: int = 8)"
+      },
+      "punch_out": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, scale: float = 0.92, duration_frames: int = 8)"
+      },
+      "set_keyframe_interpolation": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, frame: int = 1, interpolation: str = 'linear')"
+      },
+      "slide_in": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, from_side: str = 'left', distance: int | None = None, duration_frames: int = 24)"
+      },
+      "slide_out": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, to_side: str = 'right', distance: int | None = None, duration_frames: int = 24)"
+      },
+      "update_keyframe": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, frame: int = 1, props: dict | None = None, interpolation: str | None = None)"
+      },
+      "zoom_in": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, scale: float = 1.15, duration_frames: int = 24)"
+      },
+      "zoom_out": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, scale: float = 1.15, duration_frames: int = 24)"
+      }
+    },
+    "audio": {
+      "duck_audio": {
+        "signature": "(target: str | None = None, video_ai_id: str | None = None, under: str | None = None, reduction_db: float = -8.0, attack_frames: int = 6, release_frames: int = 12)"
+      },
+      "fade_audio_in": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, duration_frames: int = 24, from_volume: float = 0.0)"
+      },
+      "fade_audio_out": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, duration_frames: int = 24, to_volume: float = 0.0)"
+      },
+      "mute_range": {
+        "signature": "(start_frame: int, end_frame: int, channel: int | None = None, video_ai_ids: list | None = None, mute: bool = True)"
+      },
+      "set_pan": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, pan: float = 0.0)"
+      },
+      "set_volume": {
+        "signature": "(target: str, volume: float = 1.0)"
+      },
+      "set_volume_range": {
+        "signature": "(start_frame: int, end_frame: int, volume: float, channel: int | None = None, video_ai_ids: list | None = None)"
+      }
+    },
+    "asset_binding": {
+      "bind_asset": {
+        "signature": "(asset_id: str, strip_ids: list | None = None, expected_path: str = '', asset_revision: int = 1)"
+      },
+      "relink_asset_binding": {
+        "signature": "(asset_id: str, old_path: str, new_path: str, asset_revision: int = 1)"
+      },
+      "replace_asset_binding": {
+        "signature": "(asset_id: str, old_path: str, new_path: str, asset_revision: int)"
+      }
+    },
+    "proxy": {
+      "attach_proxy": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None, manifest_path: str = '')"
+      },
+      "clear_proxies": {
+        "signature": "()"
+      },
+      "detach_proxy": {
+        "signature": "(video_ai_id: str | None = None, target: str | None = None)"
+      }
+    },
+    "channel_roles": {
+      "set_channel_role": {
+        "signature": "(channel: int, role: str)"
+      }
+    },
+    "render": {
+      "generate_contact_sheet": {
+        "signature": "(output_path: str, frames: list | None = None, cols: int = 4)"
+      },
+      "render_final": {
+        "signature": "(output_path: str, resolution = (1920, 1080), fps: float = 30.0, frame_start: int = 1, frame_end: int = 250, codec: str = 'H264', quality: str = 'medium')"
+      },
+      "render_frame": {
+        "signature": "(output_path: str, frame: int | None = None, resolution = (1280, 720))"
+      },
+      "render_preview": {
+        "signature": "(output_path: str, resolution = None, scale_percent: int = 50, fps: float = 30.0, frame_start: int = 1, frame_end: int | None = None, codec: str = 'H264', quality: str = 'draft')"
+      },
+      "render_range": {
+        "signature": "(output_path: str, start_frame: int, end_frame: int, resolution = None, scale_percent: int = 50, fps: float = 30.0)"
+      }
+    },
+    "packaging": {
+      "collect_project_assets": {
+        "signature": "(dest_dir: str)"
+      },
+      "package_project": {
+        "signature": "(output_dir: str)"
+      },
+      "save_project_copy": {
+        "signature": "(copy_path: str)"
+      }
+    },
+    "fonts": {
+      "register_font": {
+        "signature": "(path: str, font_id: str | None = None)"
+      },
+      "replace_missing_font": {
+        "signature": "(font_id: str, new_path: str)"
+      }
+    },
+    "control_plane": {
+      "restore_checkpoint": {
+        "signature": "(name: str)"
+      }
+    }
+  }
+}
