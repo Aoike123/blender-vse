@@ -17,6 +17,24 @@ remain protected.
 > declares compatibility with Blender 4.2+, but official support claims cover
 > only the versions listed in the release notes.
 
+## Pairing with a director Skill
+
+Blender VSE Control is the timeline execution layer, not the creative director.
+For an automated workflow that runs from concept and storyboard through
+source-media preparation and final assembly, pair it with an available director
+or production-orchestration Skill:
+
+- The director Skill owns the creative brief, narrative structure, shot plan,
+  asset requirements, and acceptance criteria, then delegates concrete timeline
+  edits.
+- Blender VSE Control applies those edits to the named `.blend`, protects human
+  revisions, renders when requested, and verifies that the saved timeline
+  persists.
+
+Media generation, sourcing, and licensing remain the responsibility of the
+upper-layer workflow and its chosen tools. The resulting `.blend` stays
+editable, so a human can intervene without giving up control.
+
 ## Install from GitHub
 
 Send the repository link to Codex, Claude Code, or DeepSeek Harness (DSH) and

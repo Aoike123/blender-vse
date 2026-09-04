@@ -1,7 +1,7 @@
 {
   "name": "blender-vse",
   "version": "0.1.1",
-  "description": "Local, revision-safe control of editable Blender VSE projects through one Skill and four MCP tools.",
+  "description": "Revision-safe Blender VSE timeline execution for agents; pair with a director Skill for end-to-end production.",
   "author": {
     "name": "Aoike",
     "url": "https://github.com/Aoike123"
@@ -28,7 +28,7 @@
   "interface": {
     "displayName": "Blender VSE Control",
     "shortDescription": "Revision-safe local Blender VSE editing for agents",
-    "longDescription": "Let AI agents safely inspect, edit, resume, render, and verify persistence for local Blender VSE projects. Fresh observations, atomic patches, stale-base protection, and fresh-process verification preserve human changes while the .blend remains editable.",
+    "longDescription": "Let AI agents safely inspect, edit, resume, render, and verify persistence for local Blender VSE projects. Fresh observations, atomic patches, stale-base protection, and fresh-process verification preserve human changes while the .blend remains editable. For end-to-end production, pair this timeline execution layer with a director or production-orchestration Skill that owns creative planning, storyboards, and source-media work.",
     "developerName": "Aoike",
     "category": "Productivity",
     "capabilities": [

@@ -7,6 +7,12 @@ Agent-assisted editing of persistent `.blend` timelines. Blender remains the
 editable source of truth, while fresh observations prevent Agents from
 silently overwriting human changes.
 
+For end-to-end automation, pair it with an available director or
+production-orchestration Skill. The upper layer owns creative direction,
+storyboards, source-media work, and acceptance criteria; Blender VSE Control
+executes concrete timeline edits and verifies the saved `.blend`. See
+[Architecture](architecture.md) for the responsibility boundary.
+
 Proxy encoding and rebuilding remain outside the project's scope; it only
 validates and attaches externally generated proxy manifests. `blender_verify`
 reopens the project in a fresh process and confirms saved structural facts. It

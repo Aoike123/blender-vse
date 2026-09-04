@@ -3,7 +3,7 @@
   "name": "blender-vse",
   "displayName": "Blender VSE Control",
   "version": "0.1.1",
-  "description": "Local, revision-safe control of editable Blender VSE projects with one Skill and a four-tool MCP server.",
+  "description": "Revision-safe Blender VSE timeline execution for agents; pair with a director Skill for end-to-end production.",
   "author": {
     "name": "Aoike",
     "url": "https://github.com/Aoike123"

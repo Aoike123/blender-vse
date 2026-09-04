@@ -10,6 +10,19 @@ Blender VSE Control 是面向 Blender 视频序列编辑器（Video Sequence Edi
 
 > 状态：Alpha。Blender 5.1 是当前主要验证目标。随附的 Bridge 声明兼容 Blender 4.2+，但官方只对发布说明中列出的版本作出支持承诺。
 
+## 与导演 Skill 搭配
+
+Blender VSE Control 是时间线执行层，不承担创意导演的职责。如果希望 Agent 从创意、分镜、
+素材准备一路自动推进到最终组装，建议与可用的导演或制作编排 Skill 搭配使用：
+
+- 导演 Skill 负责创意简报、叙事结构、镜头方案、素材需求和验收标准，再把明确的时间线修改
+  交给本项目执行。
+- Blender VSE Control 负责把这些修改写入指定的 `.blend`，保护人工修订，按需渲染，并验证
+  保存后的时间线确实已经持久化。
+
+素材生成、获取和授权仍由上层流程及其所选工具负责。最终 `.blend` 始终可编辑，人工可以
+随时介入，而不会失去对时间线的控制。
+
 ## 从 GitHub 安装
 
 将仓库链接发给 Codex、Claude Code 或 DeepSeek Harness（DSH），让它安装插件：

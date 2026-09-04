@@ -2,6 +2,13 @@
 
 [Chinese version](CHANGELOG_zh-CN.md)
 
+## Unreleased
+
+- Documented how to pair Blender VSE Control with a director or
+  production-orchestration Skill for end-to-end automation, with explicit
+  ownership boundaries for creative planning, source media, timeline execution,
+  and persistence verification.
+
 ## 0.1.1 - 2026-09-04
 
 - Rewrote all 25 English/Chinese documentation pairs for clear, natural prose

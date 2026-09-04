@@ -5,9 +5,11 @@ description: >-
   or the required editable deliverable. Safely inspect or edit the project,
   resume earlier work, render the timeline, attach externally generated proxies,
   and verify persistence with four bounded, revision-safe local MCP tools while
-  preserving human changes. Pair with creation Skills for source media. Do not
-  use for generic video creation, proxy
-  encoding, one-off FFmpeg work, Blender 3D work, or arbitrary bpy.
+  preserving human changes. For end-to-end production, pair this execution
+  Skill with an available director or production-orchestration Skill that owns
+  creative planning, storyboards, and source-media work. Do not use for generic
+  video creation, proxy encoding, one-off FFmpeg work, Blender 3D work, or
+  arbitrary bpy.
 ---
 
 [Chinese version](SKILL_zh-CN.md)
@@ -42,6 +44,11 @@ editor for these tools.
 
 ## Choose the workflow
 
+- For end-to-end automation, let an available director or
+  production-orchestration Skill own the creative brief, storyboard, asset plan,
+  and acceptance criteria. Use this Skill as the revision-safe Blender VSE
+  execution and verification layer for concrete edits to a named `.blend`
+  project.
 - For inspection, explanation, or diagnosis, read only; do not patch or
   acknowledge unless the user also asked to change/adopt state.
 - For creation or editing, use the observed edit loop below.

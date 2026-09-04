@@ -11,6 +11,20 @@ proxy files, and session observations are derived artifacts.
 The package has no runtime dependency on an agent framework, production
 database, downloader, or media provider.
 
+## Role in an end-to-end production stack
+
+Blender VSE Control intentionally acts as the timeline execution and
+verification layer. When a request spans creative direction, storyboarding,
+source-media generation or sourcing, and final assembly, an available director
+or production-orchestration Skill should own that upper-layer workflow. It
+turns creative intent into an explicit edit plan and delegates the concrete VSE
+operations to this project.
+
+The two layers are composed by the Agent host; Blender VSE Control has no hard
+dependency on a particular director Skill. This boundary lets the upper layer
+change creative tools or media providers while the named `.blend` remains the
+revision-safe, human-editable source of truth.
+
 ```text
 Application / Agent host
         |
