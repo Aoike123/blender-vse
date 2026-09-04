@@ -5,12 +5,28 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "blender-vse-control"
 version = "0.1.0"
-description = "Low-context, revision-safe Blender VSE editing for Agent hosts"
+description = "Local, revision-safe Blender VSE editing for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE", "LICENSES/*.txt", "THIRD_PARTY_NOTICES.md"]
-keywords = ["blender", "video-editing", "vse", "automation", "nle"]
+keywords = [
+  "blender",
+  "blender-vse",
+  "video-editing",
+  "ai-video-editing",
+  "vse",
+  "nle",
+  "mcp",
+  "agent-skill",
+  "ai-agents",
+  "codex",
+  "claude-code",
+  "python",
+  "automation",
+  "revision-safe",
+  "local-first",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

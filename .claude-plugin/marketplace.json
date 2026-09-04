@@ -5,7 +5,7 @@
     "name": "Aoike",
     "url": "https://github.com/Aoike123"
   },
-  "description": "Editable Blender VSE control for local coding agents.",
+  "description": "Revision-safe local control for editable Blender VSE projects.",
   "plugins": [
     {
       "name": "blender-vse",
@@ -14,12 +14,21 @@
         "url": "https://github.com/Aoike123/blender-vse-control.git",
         "ref": "main"
       },
-      "description": "Safely inspect, edit, recover, render, and verify local Blender VSE projects.",
+      "description": "Safely inspect, edit, resume, render, and verify persistence for local Blender VSE projects.",
       "category": "Productivity",
       "tags": [
         "blender",
+        "blender-vse",
+        "vse",
         "video-editing",
-        "mcp"
+        "ai-video-editing",
+        "nle",
+        "mcp",
+        "agent-skill",
+        "codex",
+        "claude-code",
+        "revision-safe",
+        "local-first"
       ]
     }
   ]

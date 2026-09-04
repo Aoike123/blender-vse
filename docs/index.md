@@ -2,8 +2,15 @@
 
 [Chinese documentation](index_zh-CN.md)
 
-This page is the stable entry point for Blender VSE Control documentation.
-The root [README](../README.md) stays short; detailed contracts live here.
+Blender VSE Control is the local, revision-safe control layer for agent-assisted
+editing of persistent `.blend` timelines. Blender remains the editable source
+of truth, and fresh observations prevent silent overwrite of human changes.
+
+Proxy encoding and rebuilding stay outside the project; it only validates and
+attaches externally generated proxy manifests. `blender_verify` confirms saved
+structural facts after a fresh reopen, not visual quality or creative
+correctness. The root [README](../README.md) stays short; detailed contracts
+live here.
 
 ## Use the project
 

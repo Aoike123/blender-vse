@@ -4,11 +4,11 @@
 
 ![Blender VSE Control：具有修订保护的可编辑时间线](assets/social-preview_zh-CN.png)
 
-> 这是一个低上下文占用的、纯粹的blender视频编辑skill，安装它，搭配创作skill，开始享受你的剪辑。
+> 让 AI Agent 在 Blender 中剪片，同时保持时间线可见、可编辑、由你掌控。
 
-这是一个面向 Blender Video Sequence Editor 的类型化、带修订保护的 Python 控制
-层。应用程序或智能体可以与用户在可见时间线中协作，同时让 `.blend` 始终作为事实
-源，并保护人工修改不被静默覆盖。
+Blender VSE Control 是面向 Blender Video Sequence Editor 的本地、类型化、修订安全
+工程控制层。应用程序或 Agent 可以检查、编辑、续作和渲染明确指定的 `.blend`
+时间线，并验证其持久化；文件始终是事实源，人工修改不会被静默覆盖。
 
 > 状态：Alpha。当前主要验证目标为 Blender 5.1。内置 Bridge 的元数据声明支持
 > Blender 4.2+，但正式兼容范围只以各版本发布说明中的实测结果为准。
@@ -35,7 +35,8 @@
 - **原子编辑：**一组命令只提交一个修订；失败时整体回滚。
 - **可见协作：**交互编辑前必须证明 Blender GUI、目标项目、VSE 时间线与预览均
   可用。
-- **可恢复结果：**`.blend` 是唯一事实源，最终验证会用新 Blender 进程重新打开。
+- **持久化证据：**最终验证会在新 Blender 进程中重新打开作为事实源的 `.blend`，
+  检查已保存的结构事实；它不会检查渲染帧，也不判断视觉或创意是否正确。
 - **有限操作面：**调用方只能选择登记过的操作，不能传入任意 Python。
 - **有界上下文：**读取默认只返回摘要；range/detail 通过分页和可选字段控制进入
   Agent 上下文的数据量；写入、验证与错误回执同样具有字节预算。
@@ -125,9 +126,11 @@ blender-vse verify ./projects/demo.blend
 
 ## 项目边界
 
-本仓库负责 Blender 执行、时间线操作、修订安全与持久化验证；不负责下载、转码、
-代理编码、项目级资产数据库或特定智能体框架。外部系统通过类型化操作和
-[代理清单协议](src/blender_vse/schemas/proxy-manifest.schema.json)接入。
+本仓库负责 Blender 执行、白名单时间线操作、修订安全与持久化验证。它可以验证并
+附加外部生成的[代理清单](src/blender_vse/schemas/proxy-manifest.schema.json)，但不生成
+或搜集源素材，不下载或转码媒体，不编码或重建代理，不自动化通用 Blender 3D 工作或
+任意 `bpy`，不维护项目级资产数据库，也不提供 Agent 框架。附加代理不会改变原始
+源路径，最终渲染仍使用源媒体。
 
 ## 许可证
 

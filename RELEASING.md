@@ -46,6 +46,7 @@ python scripts/build_plugin.py --check
 
 ```bash
 python -m build
+python tests/verify_distribution.py dist
 ```
 
 - [ ] The source archive contains bilingual docs, tests, test-plan JSON,

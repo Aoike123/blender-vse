@@ -4,12 +4,13 @@
 
 ![Blender VSE Control — revision-safe editable timelines](assets/social-preview.png)
 
-> A low-context, focused Blender video-editing Skill. Install it, pair it with a
-> creation Skill, and enjoy the edit.
+> Let AI agents edit in Blender while the timeline stays visible, editable,
+> and under your control.
 
-A typed, revision-safe Python control layer for Blender's Video Sequence
-Editor. Applications and agents can edit the visible timeline while the
-`.blend` file remains the source of truth and manual edits remain protected.
+Blender VSE Control is a local, typed, revision-safe control layer for
+Blender's Video Sequence Editor. Applications and agents can inspect, edit,
+continue, render, and verify persistence for named `.blend` timelines while
+the file remains the source of truth and human changes stay protected.
 
 > Status: alpha. Blender 5.1 is the primary verified target. The bundled bridge
 > declares Blender 4.2+ compatibility, but release claims are based only on
@@ -43,8 +44,9 @@ should not need to edit client manifests by hand.
 - **Atomic edits:** a command list commits one revision or rolls back.
 - **Visible collaboration:** interactive edits require a proven Blender GUI,
   project identity, VSE timeline, and preview.
-- **Recoverable output:** the `.blend` is canonical; final verification reopens
-  it in a fresh Blender process.
+- **Persistence evidence:** final verification reopens the canonical `.blend`
+  in a fresh Blender process and checks saved structural facts. It does not
+  inspect frames or judge visual or creative correctness.
 - **Bounded surface:** callers select catalogued operations, never free-form
   Python.
 - **Bounded context:** reads default to summaries; range/detail pages disclose
@@ -142,11 +144,14 @@ rules are in [Testing](docs/testing.md).
 
 ## Project boundary
 
-This repository owns Blender execution, timeline operations, revision safety,
-and persistence verification. It does not own downloaders, transcoders, proxy
-encoding, project-wide asset databases, or an agent framework. Those systems
-integrate through typed operations and the
-[external proxy manifest](src/blender_vse/schemas/proxy-manifest.schema.json).
+This repository owns Blender execution, allowlisted timeline operations,
+revision safety, and persistence verification. It validates externally
+generated [proxy manifests](src/blender_vse/schemas/proxy-manifest.schema.json)
+for attachment; it does not generate or source media, download or transcode
+media, encode or rebuild proxies, automate general Blender 3D work or arbitrary
+`bpy`, own a project-wide asset database, or provide an agent framework. Proxy
+attachment preserves the original source path, and final rendering still uses
+source media.
 
 ## License
 

@@ -1,11 +1,12 @@
 ---
 name: blender-vse
 description: >-
-  Low-context, focused Blender video editing and verification through the four
-  revision-safe Blender MCP tools. Use for .blend timeline, strip, subtitle,
-  audio, proxy, render, checkpoint, or continuation tasks; pair with creation
-  Skills when generating source media, and do not use for one-off FFmpeg-only
-  edits or arbitrary Blender Python.
+  Use when a named .blend Video Sequence Editor project is the source of truth
+  or required editable deliverable. Safely inspect, edit, continue, render,
+  attach externally generated proxies, and verify persistence through four
+  bounded, revision-safe local MCP tools while preserving human changes. Pair
+  with creation Skills for source media. Do not use for generic video creation,
+  proxy encoding, one-off FFmpeg work, Blender 3D work, or arbitrary bpy.
 ---
 
 [Chinese version](SKILL_zh-CN.md)
@@ -32,6 +33,9 @@ editor for these tools.
   must be installed and configured. Do not imitate it with arbitrary Python.
 - A path outside configured roots is an authorization/configuration issue. Do
   not move or copy the project to evade it.
+- Proxy encoding and rebuilding are external. `attach_proxy` only validates and
+  attaches an already-generated manifest; attachment does not change source
+  media, and final rendering still uses it.
 - Set `create_if_missing=true` only when the user asked to create that exact
   project. Inspection and continuation never create a missing file implicitly.
 
@@ -98,8 +102,11 @@ a new targeted observation before any mutation.
 
 ## Completion
 
-An edit is complete only when a post-patch read matches the intended timeline
-and `blender_verify` confirms persistence. Report the project path, applied
-editorial changes, final verified revision/hash when returned, output paths,
-and any warnings or unresolved choices. An API success alone is not evidence
-that a requested visual result or render is correct.
+A timeline change is durably applied only when a post-patch read matches the
+intended timeline and `blender_verify` confirms persistence. `blender_verify`
+proves only the persisted structural facts it reports, including scene
+binding, visibility, and optional strip counts. It does not inspect rendered
+frames or prove visual or creative correctness. Review a preview or render
+separately before reporting a visually specified outcome complete. Report the
+project path, applied changes, final revision/hash when returned, output paths,
+and any warnings or unresolved choices.

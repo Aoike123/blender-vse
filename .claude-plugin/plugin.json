@@ -3,7 +3,7 @@
   "name": "blender-vse",
   "displayName": "Blender VSE Control",
   "version": "0.1.0",
-  "description": "Low-context local Blender video editing with one focused Skill and a four-tool MCP server.",
+  "description": "Local, revision-safe control of editable Blender VSE projects with one Skill and a four-tool MCP server.",
   "author": {
     "name": "Aoike",
     "url": "https://github.com/Aoike123"
@@ -13,10 +13,17 @@
   "license": "AGPL-3.0-only",
   "keywords": [
     "blender",
+    "blender-vse",
     "vse",
     "video-editing",
+    "ai-video-editing",
+    "nle",
     "mcp",
-    "agent-skill"
+    "agent-skill",
+    "codex",
+    "claude-code",
+    "revision-safe",
+    "local-first"
   ],
   "skills": "./skills/",
   "mcpServers": "./clients/claude/mcp.json",

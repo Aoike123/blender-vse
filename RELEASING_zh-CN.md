@@ -40,6 +40,7 @@ python scripts/build_plugin.py --check
 
 ```bash
 python -m build
+python tests/verify_distribution.py dist
 ```
 
 - [ ] 源码归档包含中英文文档、测试、测试计划 JSON、许可证、已验证的 Skill 和生成的命令索引。

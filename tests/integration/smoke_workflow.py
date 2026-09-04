@@ -150,7 +150,7 @@ def main() -> None:
         [
             {
                 "op": "set_text",
-                "video_ai_id": title["video_ai_id"],
+                "target": title["name"],
                 "text": "Smoke title updated",
             }
         ],

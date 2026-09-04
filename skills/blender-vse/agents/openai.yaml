@@ -1,16 +1,16 @@
 interface:
-  display_name: "Blender VSE"
-  short_description: "Low-context, focused Blender video editing"
+  display_name: "Blender VSE Control"
+  short_description: "Revision-safe local Blender VSE editing for agents"
   icon_small: "./assets/icon.png"
   icon_large: "./assets/logo.png"
   brand_color: "#E87D0D"
-  default_prompt: "Use $blender-vse to turn these resources into an editable Blender timeline."
+  default_prompt: "Use $blender-vse to safely inspect and edit this named .blend timeline while preserving human changes."
 
 dependencies:
   tools:
     - type: "mcp"
       value: "blender-vse-control"
-      description: "Local revision-safe Blender VSE server with four public tools"
+      description: "Local revision-safe Blender VSE control server with four public tools"
       transport: "stdio"
 
 policy:
