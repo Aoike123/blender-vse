@@ -16,7 +16,7 @@ Application / Agent host
         |
         | read / patch / acknowledge / verify
         v
-optional local stdio MCP     exactly four tools, explicit allowed project roots
+optional local stdio MCP     exactly four tools; explicitly allowed project roots
         |
         v
 blender_vse.api              collaboration and checkpoint policy
@@ -36,24 +36,24 @@ blender_vse.blender          result envelope and save verification
 
 ## Canonical manifests
 
-The project avoids duplicated hand-maintained lists:
+The project avoids duplicating hand-maintained lists:
 
 - `catalog.py` owns operation families, read-only operations, headless
   operations, project-optional operations, control-plane commands, internal
   primitives, and removed-operation migration errors.
 - `context-policy.json` owns response budgets, optional field groups, and
   compaction/resume state.
-- JSON Schemas own serialized input and output shapes.
-- `tests/test-plan.json` owns test profiles and budgets.
-- Contract tests prove the catalog, adapter registry, router, schemas, CLI, and
-  documentation remain synchronized.
+- JSON Schemas define serialized input and output shapes.
+- `tests/test-plan.json` defines test profiles and budgets.
+- Contract tests verify that the catalog, adapter registry, router, schemas,
+  CLI, and documentation remain synchronized.
 
 ## Execution modes
 
-Interactive edits require a visible Blender GUI and Video Editing workspace.
-Before execution, the session layer proves the bridge process, native window,
+Interactive edits require a visible Blender GUI in the Video Editing workspace.
+Before execution, the session layer verifies the bridge process, native window,
 requested project, scene binding, timeline area, preview area, and visible strip
-count. Missing or ambiguous proof fails closed.
+count. Missing or ambiguous evidence causes the operation to fail closed.
 
 Only native media inspection, rendering, and fresh-process persistence
 verification may run headless. An interactive edit never silently falls back to
@@ -72,12 +72,12 @@ A manual Blender edit changes the canonical hash. The caller must read and
 understand it, then either build from the new state or explicitly acknowledge
 it. The controller never blesses an unobserved change.
 
-## Context-stateful agents
+## Agent context and state
 
-Conversation history is owned by the Agent host, not by this package. The
+The Agent host owns conversation history; this package does not. The
 context layer keeps tool results bounded through `summary`, `range`, and
 `detail` views. Pagination cursors are tied to one timeline revision and query.
-After host compaction, callers discard observation tokens and perform a fresh
+After Agent host compaction, callers discard observation IDs and perform a fresh
 targeted read. See [Context model](context-model.md).
 
 The optional MCP process is deliberately memory-light: it retains only bounded
@@ -85,10 +85,11 @@ deterministic project-lock stripes, not conversation messages, observations, or
 a current project. Every call supplies and reauthorizes its project path. See
 [Local MCP server](mcp.md).
 
-The optional Skill is the prompt and orchestration layer. Its small entrypoint
-defines the state transition rules; command signatures and failure recovery are
-loaded from focused references only when needed. A generated command index is
-checked against the canonical catalog and Python signatures in the fast gate.
+The optional Skill provides the prompt and orchestration layer. Its compact
+entry point defines the state-transition rules; command signatures and recovery
+guidance are loaded from focused references only when needed. The fast gate
+checks a generated command index against the canonical catalog and Python
+signatures.
 
 `resume.py` is a host-side helper, not conversation storage. It turns durable
 handoff facts into a 4 KB capsule, retaining recent history plus counts and
@@ -96,27 +97,29 @@ digests. The stateful eval corpus replays conflict/recovery paths and measures
 active context over 250 synthetic edit cycles without pretending that the core
 library owns the Agent conversation.
 
-## Harness distribution
+## Multi-host distribution
 
-The repository root is both a Codex and Claude Code marketplace/plugin. DSH
-uses the same canonical Skill through its filesystem provider and one generated
-Cordis patch. All three launch the same stdio server; client files contain no
-editing implementation.
+The repository root serves as a marketplace/plugin for both Codex and Claude
+Code. DSH uses the same canonical Skill through its filesystem provider and a
+single generated Cordis patch. All three launch the same stdio server; client
+files contain no editing implementation.
 
 The MCP command uses uv-managed Python 3.12, so system Python is not an end-user
-dependency and installed source does not need to be writable. A missing uv
-bootstrap requires user approval; Blender and FFmpeg remain guided external
-applications. A deterministic builder emits the offline Codex marketplace
-archive, while GitHub is the primary cross-Harness distribution path. None of
-these local paths claim that stdio satisfies public HTTPS plugin-submission
-requirements. See [Harness installation](installation.md).
+dependency and installed source need not be writable. Bootstrapping a missing
+uv installation requires user approval; Blender and FFmpeg remain external
+applications installed through guided steps. A deterministic builder emits the
+offline Codex marketplace archive, while GitHub is the primary cross-Harness
+distribution path. None of these local paths claims that stdio satisfies public
+HTTPS plugin-submission requirements. See
+[multi-host installation guide](installation.md).
 
 ## Checkpoint restore
 
 Restore is a control-plane transaction, not a normal bpy operation. The
 controller validates the observed base, creates a recoverable backup, closes
-the exact GUI project, replaces the file, reopens it visibly, repeats session
-proof, and finalizes a new revision. It must be the only command in its patch.
+the matching GUI project, replaces the file, reopens it visibly, repeats the
+session checks, and finalizes a new revision. It must be the only command in its
+patch.
 
 ## Compatibility
 

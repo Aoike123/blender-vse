@@ -3,17 +3,17 @@
 [Chinese version](commands_zh-CN.md)
 
 Read this reference only when preparing `blender_patch.commands`. Each command
-is a JSON object with an `op` plus the operation-specific parameters. The
-tool-level `project`, revision, hash, observation ID, and patch ID do not belong
+is a JSON object containing an `op` and its operation-specific parameters. The
+patch-level project, revision, hash, observation ID, and patch ID do not belong
 inside individual commands.
 
-## Find the exact shape
+## Find the exact command shape
 
 [command-index.json](command-index.json) is generated from the canonical Python
 operation catalog and function signatures. Search that file for the exact
-operation name instead of loading the complete index. A parameter without `=`
-is required; a parameter with `=` is optional and shows its default. Type
-annotations describe the accepted host-side value.
+operation name instead of loading the entire index. A parameter without `=` is
+required; a parameter with `=` is optional and shows its default. Type
+annotations describe the values accepted by the host.
 
 Do not invent parameters. The outer patch is already atomic, so do not use the
 excluded `batch` operation. Project creation belongs to
@@ -27,8 +27,8 @@ instead of placing discovery or inspection operations in a patch.
 
 - When an operation accepts `video_ai_id`, prefer the stable ID returned by a
   targeted read.
-- When an operation accepts only `target`, pass the current strip name from the
-  same fresh read. Do not assume every legacy target field accepts an ID.
+- When an operation accepts only `target`, pass the current strip name from that
+  same fresh read. Do not assume every legacy `target` field accepts an ID.
 - Never guess a strip identifier. If the required field was not returned, make
   a narrower detail read before patching.
 
@@ -40,9 +40,9 @@ instead of placing discovery or inspection operations in a patch.
 - Use absolute media, subtitle, font, manifest, render, copy, and package paths.
   Do not invent missing source paths, and never overwrite a source asset with a
   render.
-- Proxies are built outside Blender. `attach_proxy` consumes an already verified
-  external `manifest_path`; `detach_proxy` and `clear_proxies` do not authorize
-  deleting files.
+- Proxies are built outside Blender. `attach_proxy` consumes an external
+  `manifest_path` that has already been verified; `detach_proxy` and
+  `clear_proxies` do not authorize file deletion.
 
 ## Small examples
 
@@ -94,12 +94,13 @@ Adapt path syntax to the local operating system.
 
 ## High-risk commands
 
-- `clear_vse`, delete, ripple, extract, overwrite, asset replacement,
-  checkpoint deletion, and restore operations require clear user intent.
+- `clear_vse`, deletion, ripple edits, extraction, overwrites, asset
+  replacement, checkpoint deletion, and restore operations require clear user
+  intent.
 - `restore_checkpoint` must be the only command in its patch. The controller
   creates a recoverable pre-restore backup and reopens the exact GUI project.
 - A render or package command can be grouped with edits only when one atomic
   transaction is genuinely desired; normally re-read the completed edit first,
   then render in a fresh patch.
-- Prefer one coherent editorial action per patch. A smaller patch makes a
-  rollback, stale-base recovery, and human review easier to interpret.
+- Prefer one coherent editorial action per patch. Smaller patches are easier to
+  reason about during rollback, stale-base recovery, and human review.

@@ -7,10 +7,11 @@
 [`tests/test-plan.json`](../tests/test-plan.json) is the canonical test manifest.
 [`tests/run.py`](../tests/run.py) reads it, applies per-suite environment policy,
 enforces timeouts, generates synthetic fixtures once, and reports durations.
-Each pytest invocation gets a unique ignored `.tmp` base directory containing
-the profile, Python version, process ID, and timestamp; the runner cleans it
-afterward. This avoids both operating-system temp collisions and reuse across
-matrix jobs, concurrent runs, or different local identities.
+Each pytest invocation gets a unique, ignored `.tmp` base directory whose name
+includes the profile, Python version, process ID, and timestamp; the runner
+cleans it afterward. This prevents operating-system temporary-directory
+collisions and reuse across matrix jobs, concurrent runs, or local identities.
+
 Missing pytest, JSON Schema validation, MCP, uv, coverage, Blender, or FFmpeg
 prerequisites fail during preflight instead of after a partial profile run.
 
@@ -18,7 +19,7 @@ prerequisites fail during preflight instead of after a partial profile run.
 | --- | --- | --- | ---: |
 | `fast` | Core unit + contract tests, excluding MCP SDK tests | No | 3 / 10 s |
 | `coverage` | Same core tests with branch coverage | No | 5 / 15 s |
-| `mcp` | Security boundary, four tools, coverage + real stdio | No | 4 / 10 s |
+| `mcp` | Security boundary, four-tool surface, coverage, and real stdio | No | 4 / 10 s |
 | `plugin` | Exact `.mcp.json` command and four-tool discovery | No | 60 / 180 s |
 | `harness` | Real Claude manifest validation plus DSH Skill/Cordis composition | No | 60 / 180 s |
 | `stateful` | Scenario replay + 250-cycle context/compaction eval | No | 5 / 15 s |
@@ -41,23 +42,23 @@ Script profiles stop on the first failure to save time. Pass `--keep-going`
 when collecting a complete regression report. Use `--dry-run` to inspect exact
 commands without starting Blender.
 
-The target is a performance signal; crossing it is reported as slow. The hard
-timeout is the safety boundary that terminates a stuck process. Keeping these
-separate prevents normal CI jitter from becoming a false failure.
+The target is a performance signal; exceeding it is reported as slow. The hard
+timeout is the safety boundary that terminates a stuck process. Keeping the two
+separate prevents normal CI jitter from causing false failures.
 
 The headless profile explicitly disables optional live-consistency checks, so a
 bridge that happens to be running cannot turn it into a GUI test.
 
-The plugin profile may provision a local uv environment on first run, so its
-60-second target includes dependency resolution. It only lists MCP tools and
-does not open Blender or mutate a project. After the checkout launch warms the
-cache, the extracted-bundle launch is forced offline.
+The plugin profile may provision a local uv environment on its first run, so
+the 60-second target includes dependency resolution. It only lists MCP tools;
+it does not open Blender or modify a project. After a launch from the checkout
+warms the cache, the extracted-bundle launch is forced offline.
 
 The Harness profile is an explicit release gate rather than a pull-request CI
 job. It strictly validates and installs the plugin with a pinned Claude Code
 CLI, persists the required directory option, connects the plugin MCP server,
 and composes DSH Skill/Cordis state with the installed DSH CLI. All client state
-is isolated under repository temporary storage; npm access may be required on
+is isolated in temporary storage within the repository; npm access may be required on
 the first run, and the user's Claude or DSH configuration is not edited.
 
 GUI profiles must run from a process attached to the same interactive desktop
@@ -67,8 +68,8 @@ that check to make hosted automation pass.
 
 ## What the fast gate proves
 
-The fast gate is Blender-free and subprocess-free but broader than ordinary
-unit tests. Together with the separate MCP gate, it checks:
+The fast gate uses neither Blender nor subprocesses, but covers more than
+ordinary unit tests. Together with the separate MCP gate, it checks:
 
 - all public operation names route and belong to exactly one family;
 - adapter, router, Schema, read-only policy, headless policy, internal
@@ -76,7 +77,7 @@ unit tests. Together with the separate MCP gate, it checks:
 - revision API success, rollback, stale-base, checkpoint, and session failures;
 - summary/range/detail filtering, pagination, stale cursors, UTF-8 byte
   truncation, and hard response budgets;
-- exact four-tool MCP discovery, generated input guards, in-memory protocol
+- exact four-tool MCP discovery, generated input validation, in-memory protocol
   calls, allowed-root rejection, and per-project serialization;
 - Skill command-index drift, example schemas, exact MCP surface, dependency
   metadata, reference links, and instruction/index byte bounds;
@@ -84,7 +85,7 @@ unit tests. Together with the separate MCP gate, it checks:
   allowlist, deterministic marketplace archive, and bundled file allowlist;
 - resume-capsule Schema/budgets/history digests plus stateful scenario corpus
   integrity; the separate stateful gate measures 250 edit cycles;
-- portable cross-client configuration, version/protocol parity, and
+- portable cross-client configuration, version and protocol parity, and
   deterministic source, wheel, and plugin archives;
 - bridge framing, fragmented socket reads, loopback policy, and project identity;
 - runner mode selection, timeouts, result parsing, and temporary-script cleanup;
@@ -93,21 +94,21 @@ unit tests. Together with the separate MCP gate, it checks:
   test-plan/context-policy entry.
 
 Parameterized catalog tests cover every public operation without launching 140
-Blender processes. Behavioral rendering and persistence remain in the Blender
-profiles where mocks would not be meaningful.
+Blender processes. Rendering behavior and persistence remain in the Blender
+profiles, where mocks would not provide meaningful evidence.
 
 ## Coverage scope
 
-The coverage profile measures deterministic host-side Python and branch
-behavior. Fixed bpy template bodies, the vendored in-Blender bridge, and the
+The coverage profile measures deterministic host-side Python behavior and
+branch coverage. Fixed bpy template bodies, the vendored in-Blender bridge, and the
 platform/GUI-specific live-session state machine are excluded from the core
 numeric threshold. Dependency-free MCP authorization tests remain in core
 coverage, while the optional protocol server has its own profile enforcing a
 stricter 85% branch threshold on both supported-version edges. The Blender
-exclusions still have focused protocol/safety contracts and real Blender
+exclusions still have focused protocol and safety contracts plus real Blender
 profiles; forcing every embedded script and OS branch through mocks would raise
-the number while reducing confidence. The thresholds and exclusions live in
-`pyproject.toml` and `tests/test-plan.json`.
+the coverage number while reducing confidence. The thresholds and exclusions
+live in `pyproject.toml` and `tests/test-plan.json`.
 
 ## Integration safety
 
@@ -119,8 +120,9 @@ the number while reducing confidence. The thresholds and exclusions live in
 - GUI profiles are sequential because one visible Blender session owns the
   timeline. Do not parallelize them.
 - The session guard refuses to switch away from a different open human project.
-- If initial GUI proof fails, the smoke harness closes only a clean blank or
-  exact test project that it launched; it never closes dirty or foreign work.
+- If the initial GUI check fails, the smoke harness closes only a clean blank or
+  matching test project that it launched; it never closes dirty or unrelated
+  work.
 - `BLENDER_VSE_ALLOW_DIRECT_MUTATION=1` is applied only to named legacy suites;
   the public smoke workflow never uses it.
 - Keep personal Blender projects closed before a full run.
@@ -131,15 +133,15 @@ CI runs six independent jobs in parallel:
 
 1. fast tests on the minimum and maximum supported Python versions;
 2. one coverage run on the primary Python version;
-3. the complete MCP contract plus one real stdio subprocess discovery on the
-   minimum and maximum Python versions;
+3. the complete MCP contract plus one discovery against a real stdio
+   subprocess on the minimum and maximum Python versions;
 4. the exact uv-backed plugin launch on one Python version;
 5. deterministic stateful/compaction scenario evals;
 6. one source/wheel/plugin build plus archive and CLI smoke checks.
 
 The MCP suite is isolated from core fast and coverage collection, so importing
 the optional SDK and starting stdio are not repeated in unrelated jobs.
-Building once avoids the former repeated build in every Python matrix job.
+Building once avoids repeating the build in every Python matrix job.
 Blender profiles remain explicit release gates because hosted runners do not
 provide the required visible desktop proof.
 

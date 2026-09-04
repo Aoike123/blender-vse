@@ -4,14 +4,15 @@
 
 ## 1. Prerequisites
 
-- For source/CLI development, Python 3.10 or newer. Harness plugin users do not
-  need system Python; the installation flow bootstraps `uv`, which provisions
-  managed Python 3.12.
-- Blender installed separately
-- FFmpeg only for proxy workflows and generated integration fixtures
+- Python 3.10 or newer for development from source or through the CLI. Users
+  who install through a Harness plugin do not need Python installed
+  system-wide; the installation process bootstraps `uv`, which provisions a
+  managed Python 3.12 environment.
+- A separate Blender installation
+- FFmpeg, only for proxy-media workflows and generated integration fixtures
 
 Blender 5.1 is the primary verified target. Do not install a separate `bpy`
-wheel; the controller uses Blender's own runtime.
+wheel; the controller uses Blender's bundled runtime.
 
 ## 2. Install for development
 
@@ -20,7 +21,7 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 ```
 
-If Blender is not on `PATH`, set its executable:
+If Blender is not on `PATH`, specify the path to its executable:
 
 ```powershell
 $env:BLENDER_VSE_BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe"
@@ -30,7 +31,8 @@ $env:BLENDER_VSE_BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blend
 export BLENDER_VSE_BLENDER_EXECUTABLE=/Applications/Blender.app/Contents/MacOS/Blender
 ```
 
-Verify discovery without changing a project:
+Confirm that the controller can discover its environment without modifying a
+project:
 
 ```bash
 blender-vse status
@@ -38,8 +40,9 @@ blender-vse context-policy
 blender-vse ops --family revision
 ```
 
-`status` is observational. A missing live session is normal until the first
-interactive operation starts or connects to Blender.
+The `status` command only observes the environment. It is normal for no live
+session to exist until the first interactive operation starts Blender or
+connects to it.
 
 ## 3. Create and read a project
 
@@ -47,17 +50,17 @@ interactive operation starts or connects to Blender.
 blender-vse read ./projects/demo.blend --create --resolution 1920 1080 --fps 30
 ```
 
-Keep these fields from the result:
+Save these fields from the response:
 
 - `revision`
 - `timeline_hash`
 - `observation_id`
 
-Together they prove which timeline state the next patch was built from.
-The default response is a bounded summary and does not include individual
-strips.
+Together, they identify the exact timeline state on which the next patch must
+be based. The default response is a bounded summary and does not list
+individual strips.
 
-Inspect only the part you plan to edit:
+Inspect only the part of the timeline that you plan to edit:
 
 ```bash
 blender-vse read ./projects/demo.blend \
@@ -67,13 +70,14 @@ blender-vse read ./projects/demo.blend \
   --view detail --strip-id TEXT_STRIP_ID --include text
 ```
 
-If `context.has_more` is true, call the same query with
-`--cursor NEXT_CURSOR`. Use the observation fields from the last targeted read
-for the patch.
+If `context.has_more` is true, repeat the same query with
+`--cursor NEXT_CURSOR`. Build the patch from the observation fields returned by
+the most recent targeted read.
 
 ## 4. Apply one atomic patch
 
-For shell quoting beyond a short example, place commands in a JSON file:
+If the command data is too complex to quote safely in the shell, place the
+commands in a JSON file:
 
 ```json
 [
@@ -96,8 +100,8 @@ blender-vse patch ./projects/demo.blend \
   --commands @commands.json
 ```
 
-Patch IDs are idempotency keys. Repeating the same successful ID must not apply
-the edit twice.
+Patch IDs are idempotency keys. Reusing an ID from a successful patch must not
+apply the same edit a second time.
 
 ## 5. Read again and verify
 
@@ -106,8 +110,8 @@ blender-vse read ./projects/demo.blend
 blender-vse verify ./projects/demo.blend --expected '{"text":1}'
 ```
 
-Never construct a second patch from a previous patch response. Read again to
-obtain a new single-use observation token.
+Never construct another patch from a previous patch response. Perform a fresh
+read to obtain a new, single-use observation ID.
 
 ## Python equivalent
 
@@ -123,6 +127,7 @@ observed = controller.read(
     include=("text",),
 )
 base = observed["data"]
+title = base["strips"][0]
 
 result = controller.patch(
     "demo.blend",
@@ -133,7 +138,7 @@ result = controller.patch(
     commands=[
         {
             "op": "set_text",
-            "video_ai_id": "text-strip-id",
+            "target": title["name"],
             "text": "Updated title",
         }
     ],
@@ -144,7 +149,7 @@ For result and error handling, continue with the [API reference](api.md).
 
 ## Agent-hosted MCP
 
-The CLI and Python examples above can run without an Agent framework. To expose
-the same revision-safe workflow to Codex, Claude, or another MCP host, continue
-with the [local MCP server guide](mcp.md). The MCP extra is optional and does
+The CLI and Python examples above do not require an Agent framework. To make the
+same revision-safe workflow available to Codex, Claude, or another MCP host,
+continue with the [local MCP server guide](mcp.md). The optional MCP extra does
 not change the four-step API contract.

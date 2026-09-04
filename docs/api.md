@@ -8,14 +8,15 @@
 
 | Method | Purpose | Side effect |
 | --- | --- | --- |
-| `read` | Return revision, timeline hash, one-use observation, and a selected timeline projection | May create a project only with `create_if_missing=True` |
+| `read` | Return the revision, timeline hash, single-use observation ID, and selected timeline projection | May create a project, but only with `create_if_missing=True` |
 | `patch` | Validate the observed base and atomically apply typed commands | Modifies and saves the `.blend` |
-| `acknowledge` | Adopt a manual edit that the caller has explicitly observed | Advances the accepted revision |
+| `acknowledge` | Adopt a manual edit that the caller has explicitly observed and understood | Advances the accepted revision |
 | `verify` | Reopen in a fresh Blender process and verify persisted strip counts | Read-only for timeline content |
 
-`BlenderVSE.execute` is a low-level typed-operation escape hatch. The adapter
-still rejects direct editing primitives unless an internal integration harness
-explicitly enables them. Applications should use `patch` for mutation.
+`BlenderVSE.execute` is a low-level escape hatch for typed operations. The
+adapter still rejects direct editing primitives unless an internal integration
+harness explicitly enables them. Applications should use `patch` for all
+mutations.
 
 ## Bounded reads
 
@@ -35,20 +36,21 @@ controller.read(
 )
 ```
 
-`summary` returns no strips. `range` and `detail` return bounded pages with
-`context.next_cursor`. A cursor is valid only for the same revision, timeline
-hash, selectors, include groups, and limit. `full` is explicit compatibility
-mode and is not suitable for a long-running Agent context.
+`summary` returns no strips. `range` and `detail` return bounded pages and place
+the next cursor in `context.next_cursor`. A cursor is valid only for the same
+revision, timeline hash, selectors, include groups, and limit. `full` is an
+explicit compatibility mode and is unsuitable for a long-running Agent
+context.
 
-Use the observation token from the final targeted read immediately before a
-patch. Never carry an observation token through compaction or handoff.
+Use the observation ID from the final targeted read immediately before a
+patch. Never carry an observation ID through compaction or handoff.
 
 ## Resume capsule helper
 
-`build_resume_capsule(...)` creates a deterministic context/handoff record with
-a 4 KB hard limit. It accepts durable project intent, confirmed revision/hash,
-recently relevant history, blockers, outputs, and next action. Observation IDs
-and cursors are deliberately not parameters.
+`build_resume_capsule(...)` creates a deterministic context and handoff record
+with a hard 4 KB limit. It accepts durable project intent, a confirmed revision
+and hash, recent relevant history, blockers, outputs, and the next action.
+Observation IDs and cursors are deliberately excluded.
 
 ```python
 from blender_vse import build_resume_capsule
@@ -64,13 +66,13 @@ capsule = build_resume_capsule(
 )
 ```
 
-History fields retain bounded recent entries and a digest/count for omitted
-history. The serialized contract is
+History fields retain a bounded set of recent entries, plus a digest and count
+for omitted history. The serialization contract is
 [`resume-capsule.schema.json`](../src/blender_vse/schemas/resume-capsule.schema.json).
 
 ## Result envelope
 
-Methods return dictionaries so they can cross JSON-oriented tool boundaries:
+Methods return dictionaries that can cross JSON-oriented tool boundaries:
 
 ```json
 {
@@ -83,14 +85,14 @@ Methods return dictionaries so they can cross JSON-oriented tool boundaries:
 }
 ```
 
-Success receipts for patch, acknowledge, and verify, plus error envelopes, are
-byte bounded by `context-policy.json`. A patch receipt is not a new observation;
-its `next_action` instructs the caller to read again.
+Success receipts from `patch`, `acknowledge`, and `verify`, as well as error
+envelopes, are byte-bounded by `context-policy.json`. A patch receipt is not a
+new observation; its `next_action` instructs the caller to read again.
 
 Do not branch on message text. Branch on `ok` and the stable `error.code`.
 Relevant recovery groups are:
 
-- `project_not_found`, `input_missing`: resolve a concrete local path.
+- `project_not_found`, `input_missing`: resolve an explicit local path.
 - `session_not_ready`, `project_mismatch`: restore the visible Blender session
   without switching away from unsaved human work.
 - `stale_base`, `revision_mismatch`, `invalid_read_token`,
@@ -98,8 +100,8 @@ Relevant recovery groups are:
   rebuild the patch.
 - `patch_rolled_back`: inspect command inputs; the timeline was not partially
   committed.
-- `invalid_read_query`, `invalid_cursor`: correct selectors or restart
-  pagination from page one.
+- `invalid_read_query`, `invalid_cursor`: correct the selectors or restart
+  pagination at page one.
 - `stale_cursor`: the timeline changed between pages; discard collected pages
   and start a new bounded read.
 - `context_budget_exceeded`: request fewer optional groups or a narrower range.
@@ -124,8 +126,8 @@ blender-vse verify PROJECT [--expected JSON_OR_@FILE]
 blender-vse execute OP [--project PROJECT] [--params JSON_OR_@FILE]
 ```
 
-All commands print JSON and return a non-zero exit code on failure. Prefer
-`@file.json` inputs in scripts to avoid shell-specific quoting.
+All commands print JSON and return a nonzero exit code on failure. In scripts,
+prefer `@file.json` inputs to avoid shell-specific quoting.
 
 ## Schemas
 

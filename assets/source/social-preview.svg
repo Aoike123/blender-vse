@@ -9,8 +9,8 @@
   <rect x="72" y="64" width="8" height="512" rx="4" fill="#E87D0D"/>
   <text x="112" y="174" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="76" font-weight="700">Blender VSE</text>
   <text x="112" y="250" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="76" font-weight="700">Control</text>
-  <text x="116" y="298" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="22">Revision-safe Blender VSE editing for AI agents.</text>
-  <text x="116" y="334" fill="#9AA4B2" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="22">Keep .blend timelines editable and human changes protected.</text>
+  <text x="116" y="298" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="22">Edit Blender VSE timelines safely with AI agents.</text>
+  <text x="116" y="334" fill="#9AA4B2" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="22">Protect human changes. Keep every project editable.</text>
   <g font-family="IBM Plex Mono, Consolas, monospace" font-size="18" font-weight="500">
     <rect x="112" y="378" width="150" height="48" rx="16" fill="#1C2128" stroke="#343A46"/>
     <text x="136" y="409" fill="#F5F7FA">1 SKILL</text>

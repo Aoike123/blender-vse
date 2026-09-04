@@ -1,42 +1,51 @@
-# 文档总览
+# 文档
 
 [English documentation](index.md)
 
-Blender VSE Control 是面向 Agent 协同剪辑的本地、修订安全工程控制层，服务于持久、
-可编辑的 `.blend` 时间线。Blender 始终保有可编辑事实源，每次写入基于最新观察，
-避免 Agent 静默覆盖人工修改。
+Blender VSE Control 是面向 Agent 辅助剪辑的本地控制层，为持久化的 `.blend` 时间线提供具备修订保护的编辑能力。Blender 始终作为可编辑的事实源；每次写入都基于最新观察，从而防止 Agent 静默覆盖人工修改。
 
-代理编码与重建不属于本项目；本项目只验证并附加外部生成的代理清单。
-`blender_verify` 在新进程重新打开工程后确认已保存的结构事实，不判断视觉质量或创意
-正确性。本页是独立中文文档入口，英文主文档与中文镜像通过契约测试保持配对。
+代理编码和重建不在本项目的职责范围内；本项目只验证并附加外部生成的代理清单。`blender_verify` 会在新的进程中重新打开项目，确认已保存的结构事实，但不会评估视觉质量或创意是否正确。仓库根目录的 [README](../README_zh-CN.md) 提供简要概览，详细契约则集中在此处。
 
 ## 使用项目
 
-- [入门与首次编辑](getting-started_zh-CN.md)
-- [Python 与 CLI API](api_zh-CN.md)
-- [操作目录及公开/内部边界](operations_zh-CN.md)
-- [环境变量与运行模式](configuration_zh-CN.md)
-- [上下文预算、分页与压缩恢复](context-model_zh-CN.md)
-- [本地 MCP 安装、目录授权与四工具工作流](mcp_zh-CN.md)
-- [`blender-vse` Skill 的 Prompt、命令与恢复规则](../skills/blender-vse/SKILL_zh-CN.md)
-- [本地 Codex 插件的构建、安装与验证](plugin_zh-CN.md)
-- [Codex、Claude Code 与 DSH 安装及项目目录确认](installation_zh-CN.md)
-- [Codex、Claude、DSH 与通用 MCP 客户端兼容性](clients_zh-CN.md)
+| 文档 | 用途 |
+| --- | --- |
+| [入门指南](getting-started_zh-CN.md) | 安装、检测 Blender、创建项目并执行第一次 `patch` |
+| [Python 与 CLI API](api_zh-CN.md) | 公开方法、结果封装结构、错误和命令行语法 |
+| [操作目录](operations_zh-CN.md) | 操作类别、公开/内部边界，以及添加操作的方法 |
+| [配置](configuration_zh-CN.md) | 环境变量、执行策略和运行时目录 |
+| [上下文模型](context-model_zh-CN.md) | 有界读取、分页、压缩和恢复规则 |
+| [本地 MCP 服务](mcp_zh-CN.md) | 安装、授权项目根目录、连接宿主，以及使用四个工具 |
+| [`blender-vse` Skill](../skills/blender-vse/SKILL_zh-CN.md) | 提示层的工具使用规范、命令路由、恢复，以及压缩后的续作 |
+| [本地 Codex 插件](plugin_zh-CN.md) | 构建、安装、配置和验证 Skill 与 stdio 组合包 |
+| [Harness 安装](installation_zh-CN.md) | 在 Codex、Claude Code 或 DSH 上安装，并确认项目存储目录 |
+| [客户端兼容性](clients_zh-CN.md) | Codex、Claude Code/Desktop、DSH、通用 stdio 以及公开 ChatGPT 的边界 |
 
 ## 理解与集成
 
-- [架构、事实源与修订模型](architecture_zh-CN.md)
-- [安全策略](../SECURITY_zh-CN.md)
+| 文档 | 用途 |
+| --- | --- |
+| [架构](architecture_zh-CN.md) | 组件、信任边界、修订模型和执行模式 |
+| [安全策略](../SECURITY_zh-CN.md) | 本地 Bridge 的威胁模型和漏洞报告方式 |
 
-## 测试与维护
+## 维护与发布
 
-- [测试档位、预算与 CI 分工](testing_zh-CN.md)
-- [长流程、压缩、冲突与负向路由评估](../evals/README_zh-CN.md)
-- [测试目录说明](../tests/README_zh-CN.md)
-- [贡献指南](../CONTRIBUTING_zh-CN.md)
-- [发布清单](../RELEASING_zh-CN.md)
-- [变更记录](../CHANGELOG_zh-CN.md)
+| 文档 | 用途 |
+| --- | --- |
+| [测试指南](testing_zh-CN.md) | 核心、MCP、Harness、有状态、无头、GUI 和完整测试档位 |
+| [有状态评估语料库](../evals/README_zh-CN.md) | 长会话、压缩、冲突、恢复和负向路由场景 |
+| [测试目录指南](../tests/README_zh-CN.md) | 测试和机器可读计划的存放位置 |
+| [贡献指南](../CONTRIBUTING_zh-CN.md) | 变更流程和验收标准 |
+| [发布清单](../RELEASING_zh-CN.md) | 明确的发布前准入条件和归档检查项 |
+| [变更记录](../CHANGELOG_zh-CN.md) | 各版本面向用户的变更 |
 
-机器可读的事实源为 `src/blender_vse/catalog.py`、
-`src/blender_vse/schemas/*.json`、`tests/test-plan.json` 和
-`src/blender_vse/context-policy.json`、`pyproject.toml`；文档不复制完整操作或测试清单。
+## 权威的机器可读事实源
+
+为避免在正文中重复权威清单，请以以下机器可读文件为事实源：
+
+- `src/blender_vse/catalog.py` 定义公开操作类别和执行分类。
+- `src/blender_vse/schemas/*.json` 定义外部 JSON 契约。
+- `src/blender_vse/context-policy.json` 定义上下文预算和压缩字段。
+- `tests/test-plan.json` 定义测试档位、要求、超时和预算。
+- `pyproject.toml` 定义软件包、pytest 和覆盖率配置。
+- `CHANGELOG.md` 记录发布层面的行为变更。

@@ -9,8 +9,8 @@
   <rect x="72" y="64" width="8" height="512" rx="4" fill="#E87D0D"/>
   <text x="112" y="174" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="76" font-weight="700">Blender VSE</text>
   <text x="112" y="250" fill="#F5F7FA" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="76" font-weight="700">Control</text>
-  <text x="116" y="298" fill="#F5F7FA" font-family="Microsoft YaHei UI, IBM Plex Sans, Segoe UI, sans-serif" font-size="22">面向 AI Agent 的本地、修订安全 Blender VSE 剪辑。</text>
-  <text x="116" y="334" fill="#9AA4B2" font-family="Microsoft YaHei UI, IBM Plex Sans, Segoe UI, sans-serif" font-size="22">让 .blend 时间线持续可编辑，并保护人工修改。</text>
+  <text x="116" y="298" fill="#F5F7FA" font-family="Microsoft YaHei UI, IBM Plex Sans, Segoe UI, sans-serif" font-size="22">让 AI Agent 安全剪辑 Blender 时间线</text>
+  <text x="116" y="334" fill="#9AA4B2" font-family="Microsoft YaHei UI, IBM Plex Sans, Segoe UI, sans-serif" font-size="22">不覆盖人工修改，工程始终可继续编辑</text>
   <g font-family="IBM Plex Mono, Consolas, monospace" font-size="18" font-weight="500">
     <rect x="112" y="378" width="150" height="48" rx="16" fill="#1C2128" stroke="#343A46"/>
     <text x="136" y="409" fill="#F5F7FA">1 SKILL</text>

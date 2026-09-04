@@ -3,7 +3,7 @@
 [Chinese version](CONTRIBUTING_zh-CN.md)
 
 Contributions are welcome. Keep the package independent of agent frameworks,
-production databases, downloaders, and media providers.
+production data stores, downloaders, and media providers.
 
 ## Development setup
 
@@ -13,21 +13,22 @@ python -m pip install -e ".[dev]"
 python tests/run.py fast
 ```
 
-The fast gate is the normal inner loop and has a three-second target. Run
-`python tests/run.py list` before choosing a Blender profile.
+The `fast` gate is the normal development loop and is designed to finish within
+three seconds. Run `python tests/run.py list` before selecting a Blender
+profile.
 
 ## Where a change belongs
 
 - Public API and collaboration policy: `src/blender_vse/api.py`
 - Operation names and classification: `src/blender_vse/catalog.py`
-- Fixed bpy templates: `src/blender_vse/blender/vse_ops.py`
+- Fixed `bpy` operation templates: `src/blender_vse/blender/vse_ops.py`
 - Execution and session policy: `src/blender_vse/blender/runner.py` and
   `live_session.py`
-- Serialized contracts: `src/blender_vse/schemas`
+- Serialized data contracts: `src/blender_vse/schemas`
 - Context views and budgets: `src/blender_vse/context.py` and
   `context-policy.json`
-- Compaction capsule construction: `src/blender_vse/resume.py`
-- MCP tool and authorization boundary: `src/blender_vse/mcp`
+- Context-compaction capsules: `src/blender_vse/resume.py`
+- MCP tools and authorization boundaries: `src/blender_vse/mcp`
 - Agent workflow and generated command index: `skills/blender-vse`
 - Local plugin metadata and launch contract: `.codex-plugin/plugin.json` and
   `.mcp.json`
@@ -38,32 +39,33 @@ The fast gate is the normal inner loop and has a three-second target. Run
 
 ## Change checklist
 
-1. Add a focused unit or contract regression first.
-2. Keep new bpy operations fixed and type/JSON encoded; never expose arbitrary
-   Python.
-3. Register each public operation in exactly one catalog family and update the
-   edit-command Schema.
-4. Keep bounded read output within the machine-readable context policy; never
-   introduce a zero-progress cursor.
-5. Add real Blender coverage only where a host-side test cannot prove behavior.
-6. Keep the public smoke profile small; register broader scripts in
-   `blender-full`.
+1. Start with a focused unit or contract regression test.
+2. Keep new `bpy` operations fixed, typed, and JSON-encoded; never expose
+   arbitrary Python.
+3. Register every public operation in exactly one catalog family, and update
+   the edit-command schema.
+4. Keep bounded-read output within the machine-readable context policy, and
+   never introduce a cursor that makes no progress.
+5. Add coverage against real Blender only when a host-side test cannot establish
+   the behavior.
+6. Keep the public smoke profile small; put broader scripts in `blender-full`.
 7. Run `python tests/run.py fast` and `python tests/run.py coverage`.
-8. After command-signature changes, run
+8. After changing a command signature, run
    `python skills/blender-vse/scripts/generate_command_index.py` and commit the
    generated index.
-9. Update public docs and `CHANGELOG.md` when behavior changes.
+9. When behavior changes, update the public documentation and both
+   `CHANGELOG.md` and `CHANGELOG_zh-CN.md`.
 
-Changes to plugin metadata or the stdio launch command must also run
-`python tests/run.py plugin` and the active Codex installation's bundled
-`plugin-creator` validator.
+Changes to plugin metadata or the stdio launch command also require
+`python tests/run.py plugin` and the `plugin-creator` validator bundled with the
+active Codex installation.
 
 Changes to context budgets, compaction state, observation transitions, or Skill
-recovery rules must run `python tests/run.py stateful` and update the model-ready
-scenario corpus when behavior intentionally changes.
+recovery rules require `python tests/run.py stateful`. If behavior changes
+intentionally, update the model-ready scenario corpus as well.
 
-Pull requests that touch session identity, persistence, checkpoint restore,
-proxy validation, or direct-mutation policy should also run
+Pull requests that affect session identity, persistence, checkpoint restore,
+proxy validation, or the direct-mutation policy should also run
 `python tests/run.py blender-smoke` on a visible desktop Blender installation.
 
 See [Testing](docs/testing.md) for profile boundaries and safety rules.

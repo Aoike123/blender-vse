@@ -1,6 +1,6 @@
 {
   "name": "blender-vse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local, revision-safe control of editable Blender VSE projects through one Skill and four MCP tools.",
   "author": {
     "name": "Aoike",

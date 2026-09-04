@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "blender-vse",
   "displayName": "Blender VSE Control",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local, revision-safe control of editable Blender VSE projects with one Skill and a four-tool MCP server.",
   "author": {
     "name": "Aoike",

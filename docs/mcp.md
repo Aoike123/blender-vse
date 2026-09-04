@@ -3,9 +3,9 @@
 [Chinese version](mcp_zh-CN.md)
 
 Blender VSE Control includes an optional local Model Context Protocol server.
-It is a thin adapter over the public Python API: the `.blend` file remains the
-source of truth, and the MCP process does not store conversation history or a
-global "current project".
+It is a thin adapter around the public Python API: the `.blend` file remains the
+source of truth, and the MCP process stores neither conversation history nor a
+global "current project."
 
 ## Install
 
@@ -15,14 +15,16 @@ Install the MCP extra in the same Python environment as the package:
 python -m pip install -e ".[mcp]"
 ```
 
-For contributor tools, including the MCP Inspector, install `.[dev]` instead.
-The adapter targets the official Python MCP SDK 2.x and uses local `stdio`.
+For contributor tools, including MCP Inspector, install `.[dev]` instead. The
+adapter targets the official Python MCP SDK 2.x and communicates over local
+`stdio`.
 
 ## Authorize project directories
 
-Every tool call names an explicit `.blend` path. The server canonicalizes that
-path before contacting Blender and accepts it only below an allowed directory.
-Set `BLENDER_VSE_ALLOWED_ROOTS` to an OS path-separator-delimited list:
+Every tool call specifies an explicit `.blend` path. The server canonicalizes
+the path before contacting Blender and accepts it only if it is under an allowed
+directory. Set `BLENDER_VSE_ALLOWED_ROOTS` to a list delimited by the operating
+system's path separator:
 
 ```powershell
 $env:BLENDER_VSE_ALLOWED_ROOTS = "D:\VideoProjects;E:\SharedEdits"
@@ -33,15 +35,16 @@ export BLENDER_VSE_ALLOWED_ROOTS=/srv/video-projects:/mnt/shared-edits
 ```
 
 If the variable is absent, the server allows only `BLENDER_VSE_PROJECTS_DIR`,
-whose default is the package's OS-specific user-data projects directory. Roots
-may be created later, but an existing root must be a directory. Prefer absolute
-paths in both configuration and tool calls.
+whose default is the package's OS-specific user-data projects directory.
+Configured roots may be created later, but any root that already exists must be
+a directory. Use absolute paths in both configuration and tool calls whenever
+possible.
 
 ## Connect a host
 
-`blender-vse-mcp` is a long-running protocol process. An MCP host launches it;
-running it directly appears to do nothing because it is waiting for messages on
-stdin. A typical host entry on Windows is:
+`blender-vse-mcp` is a long-running protocol process launched by an MCP host.
+When run directly, it appears idle because it is waiting for messages on
+`stdin`. A typical Windows host entry is:
 
 ```json
 {
@@ -58,9 +61,9 @@ stdin. A typical host entry on Windows is:
 
 On macOS or Linux, point `command` at
 `/absolute/path/to/.venv/bin/blender-vse-mcp`. Host configuration locations
-vary, but the command and environment contract stay the same. Hosts commonly
-start subprocesses with a restricted environment, so record the allowed roots
-in the host entry instead of relying on an interactive shell export.
+vary, but the command and environment contract remain the same. Hosts commonly
+start subprocesses with a restricted environment, so configure the allowed
+roots in the host entry instead of relying on an interactive shell export.
 
 Contributors can inspect the generated tool schemas with:
 
@@ -73,7 +76,7 @@ mcp dev src/blender_vse/mcp/server.py --with-editable .
 | Tool | Purpose | Important rule |
 | --- | --- | --- |
 | `blender_read` | Read a bounded summary or targeted timeline page | `summary` is the default; `full` is explicit compatibility only |
-| `blender_patch` | Apply one atomic allowlisted command batch | Requires one fresh revision, hash, observation ID, and idempotent patch ID |
+| `blender_patch` | Apply one allowlisted command batch atomically | Requires a fresh revision, hash, single-use observation ID, and idempotent patch ID |
 | `blender_acknowledge` | Adopt a manual Blender edit after observing it | Never acknowledge state that was not read and understood |
 | `blender_verify` | Reopen and verify persisted project state | Use after the final read/patch cycle |
 
@@ -97,9 +100,10 @@ blender_read(summary)
 
 After host compaction, handoff, a stale-base response, or any uncertainty about
 the active observation, discard `observation_id` and call `blender_read` again.
-Keep only the explicit project path, user intent, last confirmed revision/hash,
-bounded recent patch IDs/actions/outputs with counts and digests, and unresolved
-decisions across compaction. The canonical rules and byte budgets are in
+Across compaction, retain only the explicit project path, user intent, last
+confirmed revision and hash, bounded recent patch IDs, actions, and outputs with
+counts and digests, and unresolved decisions. The canonical rules and byte
+budgets are in
 [Context model](context-model.md).
 
 ## Local execution and concurrency
@@ -110,14 +114,14 @@ Calls targeting one canonical project path are serialized; calls for different
 projects do not share a current-project variable. Blender's own visible-session
 identity checks still fail closed if another project owns the editor.
 
-The MCP security boundary, tool coverage, and one real subprocess handshake are
-isolated in the four-second `mcp` gate. It runs on the minimum and maximum
-Python versions without slowing core fast/coverage collection. Actual GUI
+The four-second `mcp` gate covers the MCP security boundary, tool surface, and
+one real subprocess handshake in isolation. It runs on the minimum and maximum
+Python versions without slowing core fast or coverage collection. Actual GUI
 editing remains covered by `blender-smoke`; see [Testing](testing.md).
 
 ## Prompt and Skill layer
 
-The MCP server supplies execution, not long-form behavioral prompting. The
+The MCP server provides execution, not long-form behavioral instructions. The
 bundled [`blender-vse` Skill](../skills/blender-vse/SKILL.md) supplies the
 progressive read/patch/recovery workflow and declares this stdio server as its
 dependency. The [local plugin guide](plugin.md) packages both into a validated,

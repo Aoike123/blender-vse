@@ -4,11 +4,11 @@
 
 ## 1. 前置条件
 
-- 源码/CLI 开发需要 Python 3.10 或更高版本。Harness 插件用户无需系统 Python；安装流程会引导准备 `uv`，再由它提供托管 Python 3.12。
-- 单独安装 Blender。
-- 只有代理工作流和生成集成测试素材时需要 FFmpeg。
+- 源码开发或 CLI 开发需要 Python 3.10 或更高版本。通过 Harness 插件安装的用户无需准备系统 Python；安装流程会初始化 `uv`，再由 `uv` 提供托管的 Python 3.12 环境。
+- Blender 需要单独安装。
+- 只有代理媒体工作流和集成测试素材生成需要 FFmpeg。
 
-Blender 5.1 是当前主要验证目标。不要单独安装 `bpy` wheel；控制器使用 Blender 自带运行时。
+Blender 5.1 是目前的主要验证版本。不要单独安装 `bpy` wheel；控制器会直接使用 Blender 自带的运行时。
 
 ## 2. 安装开发环境
 
@@ -17,7 +17,7 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 ```
 
-如果 Blender 不在 `PATH`，请设置可执行文件：
+如果 Blender 不在 `PATH` 中，请指定其可执行文件的路径：
 
 ```powershell
 $env:BLENDER_VSE_BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe"
@@ -27,7 +27,7 @@ $env:BLENDER_VSE_BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blend
 export BLENDER_VSE_BLENDER_EXECUTABLE=/Applications/Blender.app/Contents/MacOS/Blender
 ```
 
-在不修改项目的情况下验证发现结果：
+在不修改任何项目的情况下，确认控制器能否发现运行环境：
 
 ```bash
 blender-vse status
@@ -35,7 +35,7 @@ blender-vse context-policy
 blender-vse ops --family revision
 ```
 
-`status` 只做观察。第一次交互操作启动或连接 Blender 前，缺少活动会话属于正常情况。
+`status` 命令只会观察运行环境。首次交互操作启动 Blender 或连接到 Blender 之前，没有活动会话是正常的。
 
 ## 3. 创建并读取项目
 
@@ -43,15 +43,15 @@ blender-vse ops --family revision
 blender-vse read ./projects/demo.blend --create --resolution 1920 1080 --fps 30
 ```
 
-保留结果中的以下字段：
+保存响应中的以下字段：
 
 - `revision`
 - `timeline_hash`
 - `observation_id`
 
-它们共同证明下一次 Patch 基于哪个时间线状态。默认响应为有界摘要，不包含单独片段。
+这些字段共同标识下一份补丁必须基于的确切时间线状态。默认响应只返回一份有长度限制的摘要，不会列出各个片段。
 
-只检查准备编辑的范围：
+只检查准备编辑的时间线范围：
 
 ```bash
 blender-vse read ./projects/demo.blend \
@@ -61,11 +61,11 @@ blender-vse read ./projects/demo.blend \
   --view detail --strip-id TEXT_STRIP_ID --include text
 ```
 
-如果 `context.has_more` 为 true，使用同一查询并传入 `--cursor NEXT_CURSOR`。Patch 必须使用最后一次目标读取的观察字段。
+如果 `context.has_more` 为 true，请使用 `--cursor NEXT_CURSOR` 重复同一查询。构建补丁时，必须使用最近一次定向读取所返回的观察字段。
 
-## 4. 应用一个原子 Patch
+## 4. 应用一个原子补丁
 
-当 Shell 引号超出简短示例时，把命令放入 JSON 文件：
+如果命令内容过于复杂，不适合直接在 Shell 中安全引用，请将命令放入 JSON 文件：
 
 ```json
 [
@@ -88,7 +88,7 @@ blender-vse patch ./projects/demo.blend \
   --commands @commands.json
 ```
 
-Patch ID 是幂等键。重复一个已经成功的 ID 绝不能再次应用编辑。
+补丁 ID 是幂等键。重复使用已成功执行的补丁 ID 时，不得再次应用相同的编辑。
 
 ## 5. 重新读取并验证
 
@@ -97,7 +97,7 @@ blender-vse read ./projects/demo.blend
 blender-vse verify ./projects/demo.blend --expected '{"text":1}'
 ```
 
-不要根据前一次 Patch 响应构造第二个 Patch。必须重新读取，取得新的一次性观察令牌。
+切勿根据上一次补丁响应构建下一份补丁。请重新读取项目，获取新的、仅可使用一次的观察 ID。
 
 ## 等价 Python 用法
 
@@ -113,6 +113,7 @@ observed = controller.read(
     include=("text",),
 )
 base = observed["data"]
+title = base["strips"][0]
 
 result = controller.patch(
     "demo.blend",
@@ -123,15 +124,15 @@ result = controller.patch(
     commands=[
         {
             "op": "set_text",
-            "video_ai_id": "text-strip-id",
+            "target": title["name"],
             "text": "更新后的标题",
         }
     ],
 )
 ```
 
-结果与错误处理见 [API 参考](api_zh-CN.md)。
+有关结果与错误处理方式，请参阅 [API 参考](api_zh-CN.md)。
 
-## Agent 宿主 MCP
+## 由 Agent 托管的 MCP
 
-以上 CLI 和 Python 示例无需 Agent 框架即可运行。如需向 Codex、Claude 或其他 MCP 宿主公开同一套修订安全流程，请继续阅读[本地 MCP 服务指南](mcp_zh-CN.md)。MCP extra 是可选项，不会改变四步 API 契约。
+以上 CLI 和 Python 示例无需 Agent 框架即可运行。如需让 Codex、Claude 或其他 MCP 宿主使用同一套具备修订保护的工作流，请继续阅读[本地 MCP 服务指南](mcp_zh-CN.md)。MCP 扩展依赖为可选项，不会改变四步 API 契约。

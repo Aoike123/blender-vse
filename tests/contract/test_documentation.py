@@ -8,6 +8,8 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parents[2]
 LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 HAN = re.compile(r"[\u3400-\u9fff]")
+BOLD_JOINED_TO_TEXT = re.compile(r"\*\*[^*\r\n]+\*\*(?=[A-Za-z0-9_\u3400-\u9fff])")
+HEADING = re.compile(r"^#{1,6}\s+\S")
 IGNORED_TREES = {
     ".agents",
     ".git",
@@ -56,6 +58,26 @@ def test_readmes_point_to_the_documentation_hub_and_test_flow() -> None:
     for name, links in expected.items():
         text = (ROOT / name).read_text(encoding="utf-8")
         assert all(link in text for link in links)
+
+
+def test_markdown_emphasis_and_fences_render_cleanly() -> None:
+    joined = []
+    crowded_headings = []
+    unbalanced = []
+    for markdown in _markdown_files():
+        text = markdown.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        for number, line in enumerate(lines, start=1):
+            if BOLD_JOINED_TO_TEXT.search(line):
+                joined.append(f"{markdown.relative_to(ROOT)}:{number}")
+            if HEADING.match(line) and number < len(lines) and lines[number].strip():
+                crowded_headings.append(f"{markdown.relative_to(ROOT)}:{number}")
+        fences = sum(line.lstrip().startswith("```") for line in lines)
+        if fences % 2:
+            unbalanced.append(str(markdown.relative_to(ROOT)))
+    assert joined == [], "bold text needs whitespace before following prose: " + ", ".join(joined)
+    assert crowded_headings == [], "headings need a blank line before content: " + ", ".join(crowded_headings)
+    assert unbalanced == [], "unbalanced fenced code blocks: " + ", ".join(unbalanced)
 
 
 def test_every_markdown_document_has_a_separate_chinese_mirror() -> None:

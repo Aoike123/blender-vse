@@ -2,23 +2,24 @@
 
 [Chinese version](clients_zh-CN.md)
 
-The four-tool MCP server and Agent Skill are portable, but installation and
-approval metadata are host-specific. Do not treat one client's plugin manifest
-as a universal configuration file.
+The four-tool MCP server and Agent Skill work across clients, but installation
+and approval metadata are host-specific. Do not treat any one client's plugin
+manifest as a universal configuration file.
 
 | Surface | Status | Supported path |
 | --- | --- | --- |
 | Python / CLI | Verified | Install the package and call `blender-vse` |
-| Generic local MCP host | Verified by official SDK client | Launch `blender-vse-mcp` or the uv launcher over stdio |
-| Codex local plugin | Verified, including extracted bundle | Use [Local Codex plugin](plugin.md) |
-| Claude Code | Verified with 2.1.259 in isolated state | Install the GitHub marketplace; its required directory option configures MCP |
-| DeepSeek Harness (DSH) | Verified with 0.1.0-rc.6 in isolated state | Install the Skill and merge one generated `dsh-mcp-client` patch item |
-| Claude Desktop | Configuration documented; app-level execution not tested here | Add the generated standard stdio server object |
+| Generic local MCP host | Verified with the official SDK client | Launch `blender-vse-mcp` or the uv launcher over stdio |
+| Codex local plugin | Verified, including installation from an extracted bundle | Use [Local Codex plugin](plugin.md) |
+| Claude Code | Verified with 2.1.259 in an isolated environment | Install the GitHub marketplace; the required directory option configures MCP |
+| DeepSeek Harness (DSH) | Verified with 0.1.0-rc.6 in an isolated environment | Install the Skill and merge the single generated `dsh-mcp-client` patch item |
+| Claude Desktop | Configuration documented; end-to-end app execution not tested here | Add the generated standard stdio server object |
 | ChatGPT public plugin | Not yet supported | Requires a reviewed HTTPS MCP endpoint; local stdio is insufficient |
 
-All Harness installs follow the [installation contract](installation.md).
-Copying components produces `installed`; setup becomes `ready` only after the
-user confirms an absolute `BLENDER_VSE_PROJECTS_DIR`.
+All Harness installations follow the [installation contract](installation.md).
+Copying the components leaves the installation in the `installed` state; it
+becomes `ready` only after the user confirms an absolute
+`BLENDER_VSE_PROJECTS_DIR`.
 
 ## Generate a standard stdio config
 
@@ -33,9 +34,10 @@ uv run --no-project --managed-python --python 3.12 \
   --projects-dir /absolute/path/to/workspace/blender-vse-projects
 ```
 
-Repeat `--allowed-root` only for additional directories. The command prints
-JSON and does not modify host configuration. Review it, then merge the one
-`blender-vse-control` entry through the host's normal configuration UI or CLI.
+Repeat `--allowed-root` only when granting access to additional directories.
+The command prints JSON without modifying the host configuration. Review the
+output, then merge the single `blender-vse-control` entry through the host's
+normal configuration UI or CLI.
 
 ## Claude Code
 
@@ -49,25 +51,26 @@ stdio configuration:
 ```
 
 The manifest's required `projects_dir` user option prompts for the project
-directory instead of requiring a manual settings edit. Its value is injected
-as `BLENDER_VSE_PROJECTS_DIR` and the initial
-`BLENDER_VSE_ALLOWED_ROOTS`. Reload the plugin or start a new session after
-changing it. The installing Agent recommends the active workspace's
-`blender-vse-projects` directory; a missing workspace or external selection
-requires an advisory and explicit confirmation.
+directory, so no manual settings edit is necessary. Its value is injected as
+`BLENDER_VSE_PROJECTS_DIR` and the initial `BLENDER_VSE_ALLOWED_ROOTS`. Reload
+the plugin or start a new session after changing it. The Agent performing the
+installation recommends the active workspace's `blender-vse-projects`
+directory. If no workspace is active, or if the user selects an external
+directory, the Agent must show an advisory and obtain explicit confirmation.
 
 Use `claude mcp list` and `/mcp` to confirm that exactly four tools appear. Use
-`/skills` and `/context` to confirm Skill discovery and observe context usage.
-The server remains stateless with respect to the conversation; Claude owns the
-growing/compacted context, while the Skill's 4 KB resume capsule defines what
-survives compaction.
+`/skills` and `/context` to confirm Skill discovery and inspect context usage.
+The server remains stateless with respect to the conversation: Claude manages
+context growth and compaction, while the Skill's 4 KB resume capsule defines
+what survives compaction.
 
 ## DeepSeek Harness (DSH)
 
-DSH discovers user and project Skills from its standard filesystem roots. Copy
-the complete canonical Skill into `<DSH_HOME>/skills/blender-vse` for user
-scope or `<project>/.dsh/skills/blender-vse` for project scope. Then render the
-single-server Cordis patch after the user confirms project storage:
+DSH discovers user- and project-level Skills in its standard filesystem
+locations. Copy the complete canonical Skill to
+`<DSH_HOME>/skills/blender-vse` for user scope or
+`<project>/.dsh/skills/blender-vse` for project scope. After the user confirms
+the project storage directory, generate the single-server Cordis patch:
 
 ```bash
 uv run --no-project --managed-python --python 3.12 \
@@ -79,9 +82,10 @@ uv run --no-project --managed-python --python 3.12 \
 
 The generated patch uses `@deepseek-ai/dsh-mcp-client`, local stdio, the exact
 MCP SDK version tested by this repository, and an absolute launcher path. Test
-it with `dsh --profile <name> --patch <file> --dump-config`; then merge its one
-item into the chosen profile or home `cordis.patch.yml` without overwriting
-unrelated user entries. DSH exposes the four tools under the
+it with `dsh --profile <name> --patch <file> --dump-config`, then merge its
+single item into the selected profile or the home-directory
+`cordis.patch.yml`. Do not overwrite unrelated user entries. DSH exposes the
+four tools under the
 `mcp__blender-vse-control__*` namespace.
 
 If the user chooses an external directory, rerun the generator with
@@ -90,19 +94,19 @@ If the user chooses an external directory, rerun the generator with
 ## Claude Desktop and other MCP hosts
 
 Run `print_mcp_config.py` and use the emitted `mcpServers` object. It contains a
-standard `type`, `command`, `args`, and `env` entry with an absolute launcher
-path. Host-specific approval settings should protect `blender_patch` and
-`blender_acknowledge`; server-side allowed-root and revision checks remain
+standard entry with `type`, `command`, `args`, and `env` fields and an absolute
+launcher path. Host-specific approval settings should protect `blender_patch`
+and `blender_acknowledge`; server-side allowed-root and revision checks remain
 authoritative.
 
 ## Public ChatGPT boundary
 
 The local editor must share a machine and interactive desktop with Blender, so
-stdio is the correct local transport. Public ChatGPT plugin submission requires
-a reachable HTTPS MCP endpoint (or a development tunnel while testing). A
-future remote design also needs an authenticated local companion and an
-explicit trust model; exposing the unauthenticated Blender bridge or forwarding
-its loopback port is not an acceptable shortcut.
+stdio is the appropriate local transport. Submitting a public ChatGPT plugin
+requires a reachable HTTPS MCP endpoint, or a development tunnel during
+testing. A future remote design would also require an authenticated local
+companion and an explicit trust model. Exposing the unauthenticated Blender
+bridge or forwarding its loopback port is not an acceptable shortcut.
 
 Official references:
 

@@ -2,15 +2,17 @@
 
 [Chinese documentation](index_zh-CN.md)
 
-Blender VSE Control is the local, revision-safe control layer for agent-assisted
-editing of persistent `.blend` timelines. Blender remains the editable source
-of truth, and fresh observations prevent silent overwrite of human changes.
+Blender VSE Control provides a local, revision-safe control layer for
+Agent-assisted editing of persistent `.blend` timelines. Blender remains the
+editable source of truth, while fresh observations prevent Agents from
+silently overwriting human changes.
 
-Proxy encoding and rebuilding stay outside the project; it only validates and
-attaches externally generated proxy manifests. `blender_verify` confirms saved
-structural facts after a fresh reopen, not visual quality or creative
-correctness. The root [README](../README.md) stays short; detailed contracts
-live here.
+Proxy encoding and rebuilding remain outside the project's scope; it only
+validates and attaches externally generated proxy manifests. `blender_verify`
+reopens the project in a fresh process and confirms saved structural facts. It
+does not evaluate visual quality or creative correctness. The root
+[README](../README.md) provides a concise overview; detailed contracts live
+here.
 
 ## Use the project
 
@@ -18,13 +20,13 @@ live here.
 | --- | --- |
 | [Getting started](getting-started.md) | Install, detect Blender, create a project, apply the first patch |
 | [Python and CLI API](api.md) | Public methods, result envelopes, errors, command-line syntax |
-| [Operation catalog](operations.md) | Operation families, public/internal boundaries, adding an operation |
+| [Operation catalog](operations.md) | Operation families, public/internal boundaries, and how to add an operation |
 | [Configuration](configuration.md) | Environment variables, execution policy, runtime directories |
 | [Context model](context-model.md) | Bounded reads, pagination, compaction, and resume rules |
 | [Local MCP server](mcp.md) | Install, authorize roots, connect a host, and use the four tools |
-| [`blender-vse` Skill](../skills/blender-vse/SKILL.md) | Prompt-level tool discipline, command routing, recovery, and compaction resume |
+| [`blender-vse` Skill](../skills/blender-vse/SKILL.md) | Prompt-level tool discipline, command routing, recovery, and resuming after compaction |
 | [Local Codex plugin](plugin.md) | Build, install, configure, and validate the Skill + stdio bundle |
-| [Harness installation](installation.md) | Install on Codex, Claude Code, or DSH and confirm project storage |
+| [Multi-host installation](installation.md) | Install on Codex, Claude Code, or DSH and confirm project storage |
 | [Client compatibility](clients.md) | Codex, Claude Code/Desktop, DSH, generic stdio, and public ChatGPT boundaries |
 
 ## Understand and integrate it
@@ -47,12 +49,15 @@ live here.
 
 ## Canonical machine-readable sources
 
-Avoid duplicating these lists in prose:
+To avoid duplicating authoritative lists in prose, use these machine-readable
+sources:
 
-- `src/blender_vse/catalog.py` owns public operation families and execution
+- `src/blender_vse/catalog.py` defines public operation families and execution
   classifications.
-- `src/blender_vse/schemas/*.json` owns external JSON contracts.
-- `src/blender_vse/context-policy.json` owns context budgets and compaction fields.
-- `tests/test-plan.json` owns test profiles, requirements, timeouts, and budgets.
-- `pyproject.toml` owns package, pytest, and coverage configuration.
-- `CHANGELOG.md` owns release-level behavior changes.
+- `src/blender_vse/schemas/*.json` defines external JSON contracts.
+- `src/blender_vse/context-policy.json` defines context budgets and compaction
+  fields.
+- `tests/test-plan.json` defines test profiles, requirements, timeouts, and
+  budgets.
+- `pyproject.toml` defines package, pytest, and coverage configuration.
+- `CHANGELOG.md` records release-level behavior changes.

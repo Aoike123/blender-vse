@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from blender_vse import __version__
+
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_TOOLS = [
     "blender_read",
@@ -102,7 +104,7 @@ def test_claude_marketplace_and_manifest_share_the_root_plugin() -> None:
     }
     assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./clients/claude/mcp.json"
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == __version__
     codex_manifest = json.loads(
         (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
     )

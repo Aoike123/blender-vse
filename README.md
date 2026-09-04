@@ -8,13 +8,14 @@
 > and under your control.
 
 Blender VSE Control is a local, typed, revision-safe control layer for
-Blender's Video Sequence Editor. Applications and agents can inspect, edit,
-continue, render, and verify persistence for named `.blend` timelines while
-the file remains the source of truth and human changes stay protected.
+Blender's Video Sequence Editor (VSE). Applications and agents can inspect,
+edit, resume work on, and render named `.blend` timelines, then verify that
+their changes persist. The file remains the source of truth, and human changes
+remain protected.
 
 > Status: alpha. Blender 5.1 is the primary verified target. The bundled bridge
-> declares Blender 4.2+ compatibility, but release claims are based only on
-> versions listed in the release notes.
+> declares compatibility with Blender 4.2+, but official support claims cover
+> only the versions listed in the release notes.
 
 ## Install from GitHub
 
@@ -25,42 +26,47 @@ ask it to install the plugin:
 Install this plugin: https://github.com/Aoike123/blender-vse-control
 ```
 
-That is the intended user flow. After copying the Skill and MCP integration,
-the installing Agent must ask which absolute directory should contain editable
-`.blend` projects. Installation is not `ready` until the user confirms that
-directory and it is supplied as `BLENDER_VSE_PROJECTS_DIR`. The recommended
-location is `<workspace>/blender-vse-projects`; an absent workspace or external
-directory triggers an explicit advisory and confirmation.
+That is the intended installation flow. After copying the Skill and MCP
+integration, the installing Agent must ask where to store editable `.blend`
+projects and obtain an absolute directory path. Installation does not reach
+`ready` until the user confirms the directory and it is supplied as
+`BLENDER_VSE_PROJECTS_DIR`. The recommended location is
+`<workspace>/blender-vse-projects`. If there is no workspace or the user chooses
+an external directory, the Agent must clearly explain the implications and ask
+for confirmation.
 
-See [installation](docs/installation.md) for the Codex marketplace, Claude
-marketplace, DSH Skill/Cordis, configuration, and verification paths. Users
-should not need to edit client manifests by hand.
+The [installation guide](docs/installation.md) covers installation through the
+Codex marketplace, Claude marketplace, and DSH Skill/Cordis, along with
+configuration and verification. Users should not need to edit client manifests
+by hand.
 
 ## Core guarantees
 
-- **Observed writes:** every patch requires a revision, timeline hash, and
-  single-use token from a fresh read.
-- **No silent overwrite:** a changed timeline fails with a stale-base error.
+- **Observed writes:** every patch requires the revision, timeline hash, and
+  single-use observation ID returned by a fresh read.
+- **No silent overwrite:** patching a changed timeline fails with a
+  `stale_base` error.
 - **Atomic edits:** a command list commits one revision or rolls back.
-- **Visible collaboration:** interactive edits require a proven Blender GUI,
-  project identity, VSE timeline, and preview.
+- **Visible collaboration:** interactive edits require verified GUI visibility,
+  project identity, and access to the VSE timeline and preview.
 - **Persistence evidence:** final verification reopens the canonical `.blend`
   in a fresh Blender process and checks saved structural facts. It does not
   inspect frames or judge visual or creative correctness.
-- **Bounded surface:** callers select catalogued operations, never free-form
-  Python.
+- **Bounded surface:** callers select operations from the catalog; they can
+  never submit free-form Python.
 - **Bounded context:** reads default to summaries; range/detail pages disclose
   only selected fields and carry revision-bound cursors; write, verify, and
   error receipts also have byte budgets.
 - **Bounded resume:** compaction capsules keep durable intent and recent
-  evidence under 4 KB while replacing old history with counts and digests.
+  evidence within 4 KB, replacing older history with counts and digests.
 
 ## Install and try it
 
-End users do not need a preinstalled Python. The installing Agent bootstraps
-`uv` with permission when it is missing, and `uv` provisions a managed Python
-3.12 runtime. Blender is installed separately; FFmpeg is guided when proxy or
-media-fixture features are needed. Source contributors still use Python 3.10+.
+End users do not need Python preinstalled. If `uv` is missing, the installing
+Agent asks permission before bootstrapping it; `uv` then provisions a managed
+Python 3.12 runtime. Blender is installed separately. The installer guides
+users through FFmpeg setup only when proxy or media-fixture features require
+it. Source contributors still use Python 3.10+.
 
 ```bash
 python -m venv .venv
@@ -68,20 +74,20 @@ python -m pip install -e ".[dev]"
 blender-vse status
 ```
 
-To connect an Agent host directly, install `.[mcp]`, authorize project roots,
-and configure the host to launch `blender-vse-mcp`. See the
+To connect an Agent host, install `.[mcp]`, authorize project roots, and
+configure the host to launch `blender-vse-mcp`. See the
 [local MCP guide](docs/mcp.md).
 
-The repository also ships a progressive-disclosure
-[`blender-vse` Skill](skills/blender-vse/SKILL.md). It supplies the prompt-level
-read/patch/recovery discipline while the MCP server supplies execution; neither
-layer stores the host's conversation history.
+The repository also includes a progressive-disclosure
+[`blender-vse` Skill](skills/blender-vse/SKILL.md). It defines prompt-level
+read, patch, and recovery discipline, while the MCP server handles execution.
+Neither layer stores the host's conversation history.
 
 For local Codex installation, the repository is also a validated plugin root
-and can build a deterministic local-marketplace archive. See the
+that can build a deterministic local-marketplace archive. See the
 [plugin guide](docs/plugin.md).
 
-Create or observe a project, then use the returned `revision`, `timeline_hash`,
+Create or read a project, then use the returned `revision`, `timeline_hash`,
 and `observation_id` in a patch:
 
 ```bash
@@ -95,13 +101,13 @@ blender-vse patch ./projects/demo.blend \
 blender-vse verify ./projects/demo.blend
 ```
 
-Read again before every subsequent patch. See the
+Read the project again before every subsequent patch. See the
 [getting-started guide](docs/getting-started.md) for Python examples and setup
 details.
 
-For long-running Agent sessions, escalate from `summary` to a targeted
-`range/detail` read. Use `--view full` only for explicit legacy debugging. See
-the [context model](docs/context-model.md).
+For long-running Agent sessions, start with `summary` and request a targeted
+`range/detail` read only when needed. Use `--view full` only for explicit
+legacy debugging. See the [context model](docs/context-model.md).
 
 ## Test profiles
 
@@ -117,11 +123,11 @@ test profile, performance target, and hard timeout:
 | `harness` | Real Claude + DSH package/config validation | `python tests/run.py harness` | 60 / 180 s |
 | `stateful` | Scenario replay + 250-cycle compaction eval | `python tests/run.py stateful` | 5 / 15 s |
 | `blender-headless` | Native media decode | `python tests/run.py blender-headless` | 15 / 60 s |
-| `blender-smoke` | One public read/patch/read/verify GUI flow | `python tests/run.py blender-smoke` | 120 / 240 s |
+| `blender-smoke` | One public multi-patch GUI workflow with read-after-write and persistence verification | `python tests/run.py blender-smoke` | 120 / 240 s |
 | `blender-full` | Complete Blender regression suite | `python tests/run.py blender-full` | 900 / 1200 s |
 
-Run `python tests/run.py list` to inspect the plan. The detailed safety and CI
-rules are in [Testing](docs/testing.md).
+Run `python tests/run.py list` to inspect the plan. Detailed safety and CI rules
+are documented in [Testing](docs/testing.md).
 
 ## Documentation
 
@@ -144,14 +150,15 @@ rules are in [Testing](docs/testing.md).
 
 ## Project boundary
 
-This repository owns Blender execution, allowlisted timeline operations,
-revision safety, and persistence verification. It validates externally
-generated [proxy manifests](src/blender_vse/schemas/proxy-manifest.schema.json)
-for attachment; it does not generate or source media, download or transcode
-media, encode or rebuild proxies, automate general Blender 3D work or arbitrary
-`bpy`, own a project-wide asset database, or provide an agent framework. Proxy
-attachment preserves the original source path, and final rendering still uses
-source media.
+This repository is responsible for Blender execution, allowlisted timeline
+operations, revision safety, and persistence verification. It validates
+externally generated
+[proxy manifests](src/blender_vse/schemas/proxy-manifest.schema.json) before
+attaching them. It does not generate or source media, download or transcode
+media, encode or rebuild proxies, automate general Blender 3D workflows or
+arbitrary `bpy` operations, maintain a project-wide asset database, or provide
+an agent framework. Attaching a proxy preserves the original source path, and
+final rendering still uses the source media.
 
 ## License
 

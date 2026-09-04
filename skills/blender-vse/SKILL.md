@@ -2,11 +2,12 @@
 name: blender-vse
 description: >-
   Use when a named .blend Video Sequence Editor project is the source of truth
-  or required editable deliverable. Safely inspect, edit, continue, render,
-  attach externally generated proxies, and verify persistence through four
-  bounded, revision-safe local MCP tools while preserving human changes. Pair
-  with creation Skills for source media. Do not use for generic video creation,
-  proxy encoding, one-off FFmpeg work, Blender 3D work, or arbitrary bpy.
+  or the required editable deliverable. Safely inspect or edit the project,
+  resume earlier work, render the timeline, attach externally generated proxies,
+  and verify persistence with four bounded, revision-safe local MCP tools while
+  preserving human changes. Pair with creation Skills for source media. Do not
+  use for generic video creation, proxy
+  encoding, one-off FFmpeg work, Blender 3D work, or arbitrary bpy.
 ---
 
 [Chinese version](SKILL_zh-CN.md)
@@ -21,7 +22,7 @@ editor for these tools.
 ## Establish the boundary
 
 - Do not treat a fresh installation as ready until the user has confirmed an
-  absolute project directory through `BLENDER_VSE_PROJECTS_DIR`. If it is not
+  absolute project directory in `BLENDER_VSE_PROJECTS_DIR`. If the variable is not
   configured, ask where editable `.blend` projects should live before creating
   one. Never choose a plugin cache, marketplace checkout, or temporary clone.
 - Prefer `<workspace>/blender-vse-projects` for projects and referenced media.
@@ -35,7 +36,7 @@ editor for these tools.
   not move or copy the project to evade it.
 - Proxy encoding and rebuilding are external. `attach_proxy` only validates and
   attaches an already-generated manifest; attachment does not change source
-  media, and final rendering still uses it.
+  media, and final rendering still uses the original media.
 - Set `create_if_missing=true` only when the user asked to create that exact
   project. Inspection and continuation never create a missing file implicitly.
 
@@ -51,7 +52,7 @@ editor for these tools.
 
 ## Observed edit loop
 
-1. Call `blender_read` on the exact project with `view="summary"`.
+1. Call `blender_read` with the exact project path and `view="summary"`.
 2. Read only the area needed for the task:
    - `range` requires `frame_range` and is best for a bounded timeline span.
    - `detail` requires strip IDs, channels, strip types, or a frame range and is
@@ -63,12 +64,12 @@ editor for these tools.
    constructing commands, read [commands.md](references/commands.md), then look
    up only the required operations in
    [command-index.json](references/command-index.json).
-4. Call `blender_patch` with the same explicit project and the fresh read's
-   `revision`, `timeline_hash`, and `observation_id`. Generate one stable unique
-   `patch_id`; reuse it only to retry that identical batch.
+4. Call `blender_patch` with the same explicit project path and the fresh read's
+   `revision`, `timeline_hash`, and `observation_id`. Generate a unique, stable
+   `patch_id` for the batch; reuse it only to retry that identical batch.
 5. Call `blender_read` again. Never build a second patch from a patch receipt or
    reuse an observation ID.
-6. Repeat targeted read -> patch -> read only while needed. Finish changed work
+6. Repeat targeted read -> patch -> read only as needed. Finish changed work
    with `blender_verify`, optionally supplying expected strip counts when they
    are known.
 
@@ -78,12 +79,12 @@ edit.
 
 ## Manual edits
 
-A changed timeline belongs to the user. Read and understand the new state
-before doing anything else. If it is compatible with the requested work,
-`blender_acknowledge` may adopt that exact observation, followed by another
-read. If it conflicts with the user's intent or the correct choice is unclear,
-stop and ask. Never acknowledge unseen state or use acknowledgement to bypass a
-stale patch.
+Treat an externally changed timeline as the user's work. Read and understand the
+new state before doing anything else. If it is compatible with the requested
+work, `blender_acknowledge` may adopt that exact observation; read again
+afterward. If it conflicts with the user's intent or the correct choice is
+unclear, stop and ask. Never acknowledge unseen state or use acknowledgement to
+bypass a stale patch.
 
 ## Context state
 
@@ -92,13 +93,13 @@ Maintain only a compact resume capsule:
 
 - explicit project path and current user intent;
 - last confirmed revision and timeline hash;
-- bounded recent patch IDs, completed actions, relevant stable strip IDs, and
-  verified outputs, with total counts and digests for older history;
+- a bounded set of recent patch IDs, completed actions, relevant stable strip
+  IDs, and verified outputs, with total counts and digests for older history;
 - unresolved editorial decisions and the next targeted read.
 
 Do not retain observation IDs, cursors, full strip dumps, raw logs, or window
 diagnostics across compaction or handoff. Resume with a summary read and obtain
-a new targeted observation before any mutation.
+a fresh observation from a targeted read before any mutation.
 
 ## Completion
 
