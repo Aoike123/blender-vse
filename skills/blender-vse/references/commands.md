@@ -37,8 +37,10 @@ instead of placing discovery or inspection operations in a patch.
 - Prefer frame fields (`frame_start`, `frame_end`, `at_frame`, `frames`) for
   frame-exact work. Use second-based source/timeline fields only when the
   operation calls for them; do not mix units accidentally.
-- Use absolute media, subtitle, font, manifest, render, copy, and package paths.
-  Do not invent missing source paths, and never overwrite a source asset with a
+- Unlike the project path, media, subtitle, font, manifest, render, copy, and
+  package paths inside commands are absolute. When you choose where a new file
+  goes, put it inside the workspace `blender-vse-projects` folder. Do not
+  invent missing source paths, and never overwrite a source asset with a
   render.
 - Proxies are built outside Blender. `attach_proxy` consumes an external
   `manifest_path` that has already been verified; `detach_proxy` and

@@ -55,7 +55,7 @@ not infer persistence from rollback or recovery metadata.
 Preserve this compact resume capsule:
 
 ```text
-project: absolute .blend path
+project: .blend path relative to blender-vse-projects
 intent: current user-approved editorial outcome
 confirmed: last revision + timeline hash
 applied: bounded recent patch IDs/actions/outputs + total counts and digests

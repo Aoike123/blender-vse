@@ -82,9 +82,12 @@ editing remains covered by `blender-smoke`; see [Testing](testing.md).
 
 ## Prompt and Skill layer
 
-The MCP server provides execution, not long-form behavioral instructions. The
-bundled [`blender-vse` Skill](../skills/blender-vse/SKILL.md) supplies the
+The bundled [`blender-vse` Skill](../skills/blender-vse/SKILL.md) supplies the
 progressive read/patch/recovery workflow and declares this stdio server as its
-dependency. The [local plugin guide](plugin.md) packages both into a validated,
+dependency. The server also carries that Skill, so hosts without plugin
+support still get it: the server instructions hold its core rules, the
+`blender-vse` prompt returns `SKILL.md`, and every Skill file is a resource
+under `blender-vse://skill/` (for example
+`blender-vse://skill/references/recovery.md`). The [local plugin guide](plugin.md) packages both into a validated,
 installable marketplace bundle. Public ChatGPT publication remains separate
 because it requires an HTTPS MCP endpoint rather than this local stdio process.

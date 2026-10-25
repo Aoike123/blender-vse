@@ -67,7 +67,7 @@ blender-vse status
 
 若要从源码连接 Agent 宿主，请安装 `.[mcp]` 并注册 `blender-vse-mcp`。参见[本地 MCP 指南](docs/mcp_zh-CN.md)。
 
-仓库还附带采用渐进式披露的 [`blender-vse` Skill](skills/blender-vse/SKILL_zh-CN.md)。它规定提示层面的 `read`、`patch` 和恢复规范，MCP 服务负责具体执行。这两层都不会存储宿主的对话历史。
+仓库还附带采用渐进式披露的 [`blender-vse` Skill](skills/blender-vse/SKILL_zh-CN.md)。它规定提示层面的 `read`、`patch` 和恢复规范，MCP 服务负责具体执行。服务还会以服务说明、`blender-vse` 提示词和 `blender-vse://skill/...` 资源的形式提供这份 Skill，因此一键安装同样能拿到。这两层都不会存储宿主的对话历史。
 
 对于本地 Codex 安装，仓库根目录也是经过验证的插件根目录，能够构建确定性本地市场归档。参见[插件指南](docs/plugin_zh-CN.md)。
 

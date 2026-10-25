@@ -13,6 +13,7 @@ import blender_vse.mcp as mcp_package
 from blender_vse.mcp import server as server_module
 from blender_vse.mcp.boundary import MCPAdapter, ProjectBoundary
 from blender_vse.mcp.server import SERVER_INSTRUCTIONS, SERVER_NAME
+from blender_vse.skill import SKILL_FILES
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_TOOLS = {
@@ -84,6 +85,36 @@ def test_server_exposes_exactly_four_public_tools(tmp_path: Path) -> None:
     assert "execute" not in " ".join(tool.name for tool in listing.tools)
     assert "summary" in SERVER_INSTRUCTIONS
     assert "compaction" in SERVER_INSTRUCTIONS
+
+
+def test_server_serves_the_bundled_skill_as_resources_and_prompt(
+    tmp_path: Path,
+) -> None:
+    server, _controller = _server(tmp_path)
+    skill = ROOT / "skills" / "blender-vse"
+
+    async def inspect():
+        async with Client(server) as client:
+            resources = await client.list_resources()
+            recovery = await client.read_resource(
+                "blender-vse://skill/references/recovery.md"
+            )
+            prompts = await client.list_prompts()
+            prompt = await client.get_prompt("blender-vse")
+            return resources, recovery, prompts, prompt
+
+    resources, recovery, prompts, prompt = asyncio.run(inspect())
+    assert {str(item.uri) for item in resources.resources} == {
+        f"blender-vse://skill/{name}" for name in SKILL_FILES
+    }
+    assert recovery.contents[0].text == (skill / "references" / "recovery.md").read_text(
+        encoding="utf-8"
+    )
+    assert [item.name for item in prompts.prompts] == ["blender-vse"]
+    assert prompt.messages[0].content.text == (skill / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    assert "blender-vse://skill/SKILL.md" in SERVER_INSTRUCTIONS
 
 
 def test_stdio_transport_discovers_the_same_four_tools(tmp_path: Path) -> None:

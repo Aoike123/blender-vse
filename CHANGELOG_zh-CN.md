@@ -2,8 +2,12 @@
 
 [English version](CHANGELOG.md)
 
-## 尚未发布
+## 0.2.0 - 2026-10-25
 
+- MCP 服务现在自带 `blender-vse` Skill：核心规则作为服务说明下发，完整 Skill 通过
+  `blender-vse` 提示词提供，所有 Skill 文件均以 `blender-vse://skill/...` 资源提供。wheel
+  已打包 Skill，一键安装无需插件即可获得。
+- Skill 全面改用相对于工作文件夹的工程路径，并引导使用 `sample_frame` 做数值画面检查。
 - 新增一键安装脚本：Linux/macOS 使用 `install.sh`，Windows 使用 `install.ps1`。脚本会在缺少
   uv 时安装它，并通过 `uv tool` 安装 `blender-vse-mcp` 命令；服务注册交由 MCP 宿主完成。
 - 工程现在固定保存在 `<workspace>/blender-vse-projects` 中（workspace 为 MCP 宿主启动服务时

@@ -94,6 +94,8 @@ To connect an Agent host from a checkout, install `.[mcp]` and register
 The repository also includes a progressive-disclosure
 [`blender-vse` Skill](skills/blender-vse/SKILL.md). It defines prompt-level
 read, patch, and recovery discipline, while the MCP server handles execution.
+The server also serves this Skill as its instructions, a `blender-vse` prompt,
+and `blender-vse://skill/...` resources, so one-line installs get it too.
 Neither layer stores the host's conversation history.
 
 For local Codex installation, the repository is also a validated plugin root

@@ -61,4 +61,4 @@ stdio 服务器必须与可见的 Blender 进程位于同一台计算机和同�
 
 ## 提示词与 Skill 层
 
-MCP 服务器负责执行，不提供冗长的行为指令。内置的 [`blender-vse` Skill](../skills/blender-vse/SKILL_zh-CN.md) 提供渐进式 `read`、`patch` 和恢复工作流，并声明对该 stdio 服务器的依赖。[本地插件指南](plugin_zh-CN.md)将二者打包为经过验证、可安装的市场插件包。公开发布到 ChatGPT 属于另一条路径，因为它需要 HTTPS MCP 端点，而不是本地 stdio 进程。
+内置的 [`blender-vse` Skill](../skills/blender-vse/SKILL_zh-CN.md) 提供渐进式 `read`、`patch` 和恢复工作流，并声明对该 stdio 服务器的依赖。服务本身也携带这份 Skill，不支持插件的宿主同样能拿到：服务说明包含其核心规则，`blender-vse` 提示词返回 `SKILL.md`，所有 Skill 文件都以 `blender-vse://skill/` 资源提供（例如 `blender-vse://skill/references/recovery.md`）。[本地插件指南](plugin_zh-CN.md)将二者打包为经过验证、可安装的市场插件包。公开发布到 ChatGPT 属于另一条路径，因为它需要 HTTPS MCP 端点，而不是本地 stdio 进程。

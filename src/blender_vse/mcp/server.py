@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from typing import Annotated, Any, Literal
 
 from mcp.server import MCPServer
@@ -11,15 +12,23 @@ from pydantic import Field
 
 from blender_vse import __version__
 from blender_vse.mcp.boundary import MCPAdapter
+from blender_vse.skill import SKILL_FILES, read_skill_file
 
 SERVER_NAME = "blender-vse-control"
+SKILL_URI_PREFIX = "blender-vse://skill/"
 SERVER_INSTRUCTIONS = (
     "Projects live in the workspace blender-vse-projects folder; pass paths "
-    "relative to it, such as demo.blend. Start with "
-    "blender_read summary, then use a targeted range/detail read before editing. "
-    "Pass its revision, timeline_hash, and observation_id to exactly one patch or "
-    "acknowledgement. After stale state or context compaction, discard the token "
-    "and read again. Use blender_verify for final persistence proof."
+    "relative to it, such as demo.blend. Use only these four tools, never raw "
+    "bpy. Edit loop: blender_read summary, then a targeted range/detail read, "
+    "then one blender_patch with that read's revision, timeline_hash, "
+    "observation_id, and a unique patch_id, then read again. Observation IDs are "
+    "single-use; after stale_base, context compaction, or handoff, discard them "
+    "and read again. Treat external changes as the user's work: read them and "
+    "blender_acknowledge only when compatible, otherwise ask. Set "
+    "create_if_missing only when asked to create that project. Finish with "
+    "blender_verify; it proves persistence, not visuals. Full workflow: resource "
+    f"{SKILL_URI_PREFIX}SKILL.md; commands, recovery, and signatures under "
+    f"{SKILL_URI_PREFIX}references/."
 )
 
 ProjectPath = Annotated[
@@ -200,7 +209,30 @@ def create_server(adapter: MCPAdapter | None = None) -> MCPServer:
 
         return _tool_result(operations.verify(project, expected=expected))
 
+    _register_skill(server)
     return server
+
+
+def _register_skill(server: MCPServer) -> None:
+    """Serve the bundled Skill so hosts without plugin support still get it."""
+
+    def reader(name: str) -> Callable[[], str]:
+        return lambda: read_skill_file(name)
+
+    for name in SKILL_FILES:
+        server.resource(
+            f"{SKILL_URI_PREFIX}{name}",
+            name=f"blender-vse skill: {name}",
+            mime_type="application/json" if name.endswith(".json") else "text/markdown",
+        )(reader(name))
+
+    @server.prompt(
+        name="blender-vse",
+        title="Blender VSE workflow",
+        description="Load the revision-safe Blender VSE editing workflow.",
+    )
+    def blender_vse_prompt() -> str:
+        return read_skill_file("SKILL.md")
 
 
 mcp = create_server()

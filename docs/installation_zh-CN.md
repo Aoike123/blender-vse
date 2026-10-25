@@ -29,7 +29,9 @@ powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/Aoi
 ## 注册服务
 
 像添加其他 MCP 服务器一样，把 `blender-vse-mcp` 作为 stdio 服务器加入宿主。它不需要参数，
-也不需要环境变量。只有生成代理媒体和测试素材时才需要 FFmpeg。
+也不需要环境变量。服务自带 `blender-vse` Skill：核心规则作为服务说明自动下发，完整 Skill
+可通过 `blender-vse` 提示词和 `blender-vse://skill/...` 资源获取。只有生成代理媒体和测试素材
+时才需要 FFmpeg。
 
 ## 工程保存位置
 

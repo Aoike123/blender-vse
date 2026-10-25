@@ -1,6 +1,6 @@
 {
   "name": "blender-vse",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Revision-safe Blender VSE timeline execution for agents; pair with a director Skill for end-to-end production.",
   "author": {
     "name": "Aoike",

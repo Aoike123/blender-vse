@@ -108,7 +108,9 @@ A timeline change is durably applied only when a post-patch read matches the
 intended timeline and `blender_verify` confirms persistence. `blender_verify`
 proves only the persisted structural facts it reports, including scene
 binding, visibility, and optional strip counts. It does not inspect rendered
-frames or prove visual or creative correctness. Review a preview or render
-separately before reporting a visually specified outcome complete. Report the
+frames or prove visual or creative correctness. Before reporting a visually
+specified outcome complete, check it separately: a `sample_frame` command
+returns a numeric RGB grid (rows top to bottom) for one frame, and a preview or
+render covers the rest. Report the
 project path, applied changes, final revision/hash when returned, output paths,
 and any warnings or unresolved choices.

@@ -31,7 +31,10 @@ git ref, or `BLENDER_VSE_SOURCE` to install from a fork or local checkout.
 
 Add `blender-vse-mcp` to your MCP host as a stdio server, the same way as any
 other MCP server. It takes no arguments and needs no environment variables.
-FFmpeg is needed only for proxy generation and media test fixtures.
+The server carries the `blender-vse` Skill itself: its core rules arrive as the
+server instructions, and the full Skill is available as the `blender-vse`
+prompt and as `blender-vse://skill/...` resources. FFmpeg is needed only for
+proxy generation and media test fixtures.
 
 ## Where projects live
 

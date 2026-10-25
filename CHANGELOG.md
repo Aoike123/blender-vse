@@ -2,8 +2,14 @@
 
 [Chinese version](CHANGELOG_zh-CN.md)
 
-## Unreleased
+## 0.2.0 - 2026-10-25
 
+- The MCP server now carries the `blender-vse` Skill: its core rules are the
+  server instructions, the full Skill is the `blender-vse` prompt, and every
+  Skill file is a `blender-vse://skill/...` resource. Wheels bundle the Skill,
+  so one-line installs get it without a plugin.
+- The Skill now uses workspace-relative project paths throughout and points to
+  `sample_frame` for numeric visual checks.
 - Added one-line installers, `install.sh` for Linux/macOS and `install.ps1` for
   Windows. They install uv when missing and the `blender-vse-mcp` command with
   `uv tool`; registering the server is left to the MCP host.

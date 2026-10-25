@@ -52,7 +52,7 @@
 保留此紧凑恢复胶囊：
 
 ```text
-project: .blend 绝对路径
+project: 相对于 blender-vse-projects 的 .blend 路径
 intent: 当前用户批准的编辑结果
 confirmed: 最后修订 + 时间线哈希
 applied: 有界近期 Patch ID/动作/输出 + 总数与摘要
