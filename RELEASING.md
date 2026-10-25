@@ -54,8 +54,8 @@ python tests/verify_distribution.py dist
   plan JSON, licenses, the validated Skill, and the generated command index.
 - [ ] The wheel contains every packaged Schema, the context policy, and the
   bundled Bridge and MCP adapter runtime.
-- [ ] Both Python distributions contain the AGPL, the Bridge MIT license, and
-  `THIRD_PARTY_NOTICES.md`.
+- [ ] Both Python distributions contain the project MIT license, the Bridge
+  MIT license, and `THIRD_PARTY_NOTICES.md`.
 - [ ] Install the wheel into a clean environment and run `blender-vse ops` and
   `blender-vse status`.
 - [ ] Install the wheel with its `mcp` extra and confirm MCP discovery exposes

@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- Relicensed the project from AGPL-3.0-only to the MIT License. The vendored
+  Blender MCP Bridge keeps its original MIT notice.
 - Documented how to pair Blender VSE Control with a director or
   production-orchestration Skill for end-to-end automation, with explicit
   ownership boundaries for creative planning, source media, timeline execution,

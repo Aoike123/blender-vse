@@ -4,6 +4,8 @@
 
 ## 尚未发布
 
+- 项目许可证由 AGPL-3.0-only 改为 MIT 许可证；随附的 Blender MCP Bridge 保留原有
+  MIT 声明。
 - 补充 Blender VSE Control 与导演或制作编排 Skill 的全流程自动化搭配方式，明确创意规划、
   源素材、时间线执行和持久化验证分别由哪一层负责。
 

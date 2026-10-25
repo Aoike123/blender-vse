@@ -25,14 +25,14 @@
       "source": "assets/source/social-preview.svg",
       "locale": "en",
       "dimensions": [1280, 640],
-      "sha256": "0affa2e3a0d94843191574525f84f0fe16c22467c44b6b14946ee4cf6e82a630"
+      "sha256": "8a75e962fab1fb0cb92247d8b5797e5ad7661ce525990e97b3edc8e16c75faa0"
     },
     {
       "path": "assets/social-preview_zh-CN.png",
       "source": "assets/source/social-preview_zh-CN.svg",
       "locale": "zh-CN",
       "dimensions": [1280, 640],
-      "sha256": "1729f984ac740e4eaf6babaa21b6a940a4f5f3ba46286b7b5595081878bf3f8f"
+      "sha256": "8b42719b73af24175fee2a37929c6ef604f9a429ed0eb69ef32ed12c2cd43d58"
     }
   ]
 }

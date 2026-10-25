@@ -37,14 +37,14 @@ def test_source_distribution_manifest_contains_public_artifacts() -> None:
 
 
 def test_license_and_third_party_notice_are_present() -> None:
-    assert "GNU AFFERO GENERAL PUBLIC LICENSE" in (ROOT / "LICENSE").read_text(
+    assert "MIT License" in (ROOT / "LICENSE").read_text(
         encoding="utf-8"
     )
     assert "MIT License" in (
         ROOT / "LICENSES" / "blender-mcp-MIT.txt"
     ).read_text(encoding="utf-8")
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'license = "AGPL-3.0-only"' in pyproject
+    assert 'license = "MIT"' in pyproject
     assert "THIRD_PARTY_NOTICES.md" in pyproject
 
 

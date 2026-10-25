@@ -33,7 +33,7 @@ def test_plugin_manifest_matches_package_and_component_paths() -> None:
     assert manifest["version"] == blender_vse.__version__
     assert (ROOT / manifest["skills"]).is_dir()
     assert (ROOT / manifest["mcpServers"]).is_file()
-    assert manifest["license"] == "AGPL-3.0-only"
+    assert manifest["license"] == "MIT"
     assert manifest["repository"] == "https://github.com/Aoike123/blender-vse-control"
     interface = manifest["interface"]
     assert 1 <= len(interface["defaultPrompt"]) <= 3

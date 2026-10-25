@@ -8,7 +8,7 @@ version = "0.1.1"
 description = "Local, revision-safe Blender VSE editing for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "AGPL-3.0-only"
+license = "MIT"
 license-files = ["LICENSE", "LICENSES/*.txt", "THIRD_PARTY_NOTICES.md"]
 keywords = [
   "blender",

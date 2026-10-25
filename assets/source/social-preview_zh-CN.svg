@@ -20,7 +20,7 @@
     <text x="458" y="409" fill="#F5F7FA">4 TOOLS</text>
   </g>
   <text x="112" y="496" fill="#3B82F6" font-family="IBM Plex Mono, Consolas, monospace" font-size="20">READ → PATCH → READ → VERIFY</text>
-  <text x="112" y="548" fill="#9AA4B2" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="20">Codex · Claude Code · DeepSeek Harness · AGPL-3.0</text>
+  <text x="112" y="548" fill="#9AA4B2" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="20">Codex · Claude Code · DeepSeek Harness · MIT</text>
   <g transform="translate(864 92) scale(.64)">
     <rect width="512" height="512" rx="112" fill="#1C2128"/>
     <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#343A46" stroke-width="8"/>

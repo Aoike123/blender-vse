@@ -123,4 +123,4 @@ blender-vse verify ./projects/demo.blend
 
 ## 许可证
 
-Blender VSE Control 是依据 [GNU AGPLv3](LICENSE) 发布的自由软件。随附的 Blender MCP Bridge 继续采用 MIT 许可证，详见[第三方声明](THIRD_PARTY_NOTICES_zh-CN.md)。
+Blender VSE Control 依据 [MIT 许可证](LICENSE) 发布。随附的 Blender MCP Bridge 继续采用 MIT 许可证，详见[第三方声明](THIRD_PARTY_NOTICES_zh-CN.md)。

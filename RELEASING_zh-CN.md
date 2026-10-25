@@ -46,7 +46,7 @@ python tests/verify_distribution.py dist
 
 - [ ] 源码分发包包含中英文文档、测试、测试计划 JSON、许可证、已验证的 Skill 和生成的命令索引。
 - [ ] wheel 包含所有打包 Schema、上下文策略、内置 Bridge 与 MCP 适配器运行时。
-- [ ] 两个 Python 分发包均包含 AGPL、Bridge MIT 许可证和 `THIRD_PARTY_NOTICES.md`。
+- [ ] 两个 Python 分发包均包含项目 MIT 许可证、Bridge MIT 许可证和 `THIRD_PARTY_NOTICES.md`。
 - [ ] 在干净环境安装 wheel，运行 `blender-vse ops` 和 `blender-vse status`。
 - [ ] 安装 wheel 的 `mcp` 可选依赖，确认 MCP 发现仅公开四个文档中列出的工具。
 - [ ] 解压确定性插件归档，校验市场布局，并在一个新的 Codex 任务中完成安装和测试。

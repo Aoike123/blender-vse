@@ -180,6 +180,6 @@ final rendering still uses the source media.
 
 ## License
 
-Blender VSE Control is free software under the
-[GNU Affero General Public License v3.0](LICENSE). The vendored Blender MCP
-Bridge remains MIT-licensed; see [Third-party notices](THIRD_PARTY_NOTICES.md).
+Blender VSE Control is released under the [MIT License](LICENSE). The vendored
+Blender MCP Bridge remains under its own MIT license; see
+[Third-party notices](THIRD_PARTY_NOTICES.md).
