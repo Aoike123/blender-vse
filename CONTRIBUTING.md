@@ -33,7 +33,7 @@ profile.
 - Local plugin metadata and launch contract: `.codex-plugin/plugin.json` and
   `.mcp.json`
 - Deterministic plugin archive: `scripts/build_plugin.py`
-- Portable client configuration: `scripts/print_mcp_config.py`
+- One-line installers: `install.sh` and `install.ps1`
 - Test profiles and budgets: `tests/test-plan.json`
 - User documentation: `docs`, linked through `docs/index.md`
 

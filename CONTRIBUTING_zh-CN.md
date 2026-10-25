@@ -28,7 +28,7 @@ python tests/run.py fast
 - Agent 工作流与生成的命令索引：`skills/blender-vse`
 - 本地插件元数据与启动契约：`.codex-plugin/plugin.json` 和 `.mcp.json`
 - 确定性插件归档：`scripts/build_plugin.py`
-- 便携客户端配置：`scripts/print_mcp_config.py`
+- 一键安装脚本：`install.sh` 与 `install.ps1`
 - 测试档位与预算：`tests/test-plan.json`
 - 用户文档：`docs`，由 `docs/index_zh-CN.md` 统一链接
 

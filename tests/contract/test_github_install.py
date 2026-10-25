@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 PLUGIN_MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
-GITHUB_URL = "https://github.com/Aoike123/blender-vse-control.git"
+GITHUB_URL = "https://github.com/Aoike123/blender-vse.git"
 
 
 def test_repo_is_a_single_plugin_github_marketplace() -> None:
@@ -42,20 +42,16 @@ def test_marketplace_remote_matches_plugin_publisher_metadata() -> None:
     assert "path" not in entry["source"]
 
 
-def test_each_readme_leads_with_localized_install_intent() -> None:
-    cases = (
-        (
-            "README.md",
-            "Install this plugin: https://github.com/Aoike123/blender-vse-control",
-            "## Core guarantees",
-        ),
-        (
-            "README_zh-CN.md",
-            "帮我安装这个插件：https://github.com/Aoike123/blender-vse-control",
-            "## 核心保证",
-        ),
-    )
-    for name, prompt, section in cases:
+def test_each_readme_leads_with_one_line_installers() -> None:
+    raw = "https://raw.githubusercontent.com/Aoike123/blender-vse/main"
+    for name, section in (
+        ("README.md", "## Core guarantees"),
+        ("README_zh-CN.md", "## 核心保证"),
+    ):
         readme = (ROOT / name).read_text(encoding="utf-8")
-        assert prompt in readme
-        assert readme.index(prompt) < readme.index(section)
+        for command in (
+            f"curl -LsSf {raw}/install.sh | sh",
+            f"irm {raw}/install.ps1 | iex",
+        ):
+            assert command in readme
+            assert readme.index(command) < readme.index(section)

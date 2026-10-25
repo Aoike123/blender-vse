@@ -91,11 +91,11 @@ def test_plugin_profile_runs_only_the_declared_local_transport() -> None:
 def test_harness_profile_is_isolated_from_fast_and_gui() -> None:
     profile = _plan()["profiles"]["harness"]
     assert profile["kind"] == "scripts"
-    assert profile["requires"] == ["python", "node", "npx", "dsh", "uv"]
+    assert profile["requires"] == ["python", "node", "npx", "uv"]
     assert profile["scripts"] == [
         {
             "path": "tests/clients/harness_smoke.py",
-            "label": "Claude and DSH client packaging",
+            "label": "Claude client packaging",
             "timeout_seconds": 160,
             "direct_mutation": False,
         }

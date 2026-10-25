@@ -32,8 +32,7 @@ here.
 | [Local MCP server](mcp.md) | Install, authorize roots, connect a host, and use the four tools |
 | [`blender-vse` Skill](../skills/blender-vse/SKILL.md) | Prompt-level tool discipline, command routing, recovery, and resuming after compaction |
 | [Local Codex plugin](plugin.md) | Build, install, configure, and validate the Skill + stdio bundle |
-| [Multi-host installation](installation.md) | Install on Codex, Claude Code, or DSH and confirm project storage |
-| [Client compatibility](clients.md) | Codex, Claude Code/Desktop, DSH, generic stdio, and public ChatGPT boundaries |
+| [Installation](installation.md) | One-line install on Linux, macOS, and Windows; where projects live |
 
 ## Understand and integrate it
 

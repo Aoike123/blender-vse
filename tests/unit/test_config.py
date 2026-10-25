@@ -161,7 +161,7 @@ def test_environment_report_is_structured(monkeypatch) -> None:
     assert report["blender"]["available"] is True
     assert report["ffmpeg"]["available"] is True
     assert report["blender_execution"]["gui_visible"] is True
-    assert "project_storage" in report
+    assert report["projects_dir"].endswith("blender-vse-projects")
     python_setup = report["setup"]["python"]
     assert python_setup["strategy"] == "uv-managed"
     assert python_setup["managed_version"] == "3.12"
@@ -174,54 +174,19 @@ def test_environment_report_is_structured(monkeypatch) -> None:
     assert report["setup"]["ffmpeg"]["available"] is True
 
 
-def test_project_storage_report_requires_the_preferred_explicit_variable(
-    tmp_path,
-) -> None:
-    default = tmp_path / "default-projects"
-    report = config.project_storage_report(
-        environ={},
-        default_projects_dir=default,
+def test_projects_dir_is_relative_to_the_launch_workspace(tmp_path) -> None:
+    assert config.workspace_root(environ={}, cwd=tmp_path) == tmp_path.resolve()
+    assert config.projects_dir(environ={}, cwd=tmp_path) == (
+        tmp_path.resolve() / "blender-vse-projects"
     )
-    assert report == {
-        "projects_dir": str(default.resolve()),
-        "configuration_source": "os-default",
-        "explicitly_configured": False,
-        "ready": False,
-        "configuration_required": True,
-        "allowed_roots": [str(default.resolve())],
-        "allowed_roots_source": "projects_dir",
-    }
 
 
-def test_project_storage_report_uses_configured_directory_and_roots(tmp_path) -> None:
-    projects = (tmp_path / "video projects").resolve()
-    shared = (tmp_path / "shared").resolve()
-    report = config.project_storage_report(
-        environ={
-            "BLENDER_VSE_PROJECTS_DIR": str(projects),
-            "BLENDER_VSE_ALLOWED_ROOTS": config.os.pathsep.join(
-                (str(projects), str(shared))
-            ),
-        },
-        default_projects_dir=tmp_path / "unused",
-    )
-    assert report["projects_dir"] == str(projects)
-    assert report["configuration_source"] == "BLENDER_VSE_PROJECTS_DIR"
-    assert report["explicitly_configured"] is True
-    assert report["ready"] is True
-    assert report["configuration_required"] is False
-    assert report["allowed_roots"] == [str(projects), str(shared)]
-    assert report["allowed_roots_source"] == "BLENDER_VSE_ALLOWED_ROOTS"
-
-
-def test_project_storage_report_marks_relative_configuration_not_ready() -> None:
-    report = config.project_storage_report(
-        environ={"BLENDER_VSE_PROJECTS_DIR": "relative-projects"},
-        default_projects_dir=Path("unused"),
-    )
-    assert report["explicitly_configured"] is True
-    assert report["ready"] is False
-    assert report["configuration_required"] is True
+def test_workspace_override_wins_over_the_launch_folder(tmp_path) -> None:
+    workspace = tmp_path / "workspace"
+    assert config.projects_dir(
+        environ={"BLENDER_VSE_WORKSPACE": str(workspace)},
+        cwd=tmp_path / "elsewhere",
+    ) == workspace.resolve() / "blender-vse-projects"
 
 
 def test_environment_report_guides_missing_runtime_dependencies(monkeypatch) -> None:

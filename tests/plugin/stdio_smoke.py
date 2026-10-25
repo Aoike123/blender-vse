@@ -58,7 +58,7 @@ async def inspect(
     }
     environment.update(
         {
-            "BLENDER_VSE_ALLOWED_ROOTS": str(ROOT / ".tmp" / "plugin-projects"),
+            "BLENDER_VSE_WORKSPACE": str(ROOT / ".tmp" / "plugin-workspace"),
             "UV_CACHE_DIR": str(ROOT / ".tmp" / "plugin-uv-cache"),
             "PATH": str(Path(executable).resolve().parent),
         }

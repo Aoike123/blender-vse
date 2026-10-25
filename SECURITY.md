@@ -43,8 +43,8 @@ trusted local machine and provides no authentication mechanism.
 ## MCP boundary
 
 - The optional MCP server uses local stdio and does not open a network port.
-- Every call must name an explicit `.blend` path under
-  `BLENDER_VSE_ALLOWED_ROOTS` (or the default projects directory).
+- Every call must name an explicit `.blend` path inside the workspace
+  `blender-vse-projects` folder.
 - Paths are canonicalized before Blender is contacted. The server checks the
   suffix and root containment; if a path already exists, it also verifies that
   the path names a file.

@@ -23,19 +23,13 @@ editor for these tools.
 
 ## Establish the boundary
 
-- Do not treat a fresh installation as ready until the user has confirmed an
-  absolute project directory in `BLENDER_VSE_PROJECTS_DIR`. If the variable is not
-  configured, ask where editable `.blend` projects should live before creating
-  one. Never choose a plugin cache, marketplace checkout, or temporary clone.
-- Prefer `<workspace>/blender-vse-projects` for projects and referenced media.
-  If no workspace is available, recommend opening one first. If the user picks
-  a directory outside it, explain the sandbox/portability trade-off and obtain
-  explicit confirmation; never relocate existing files implicitly.
+- Projects live in the workspace `blender-vse-projects/` folder. Pass project
+  paths relative to it, such as `demo.blend`; keep referenced media there too.
 - Require an explicit `.blend` path. Do not scan the filesystem for projects.
-- If the four tools are unavailable, stop and explain that the local MCP server
-  must be installed and configured. Do not imitate it with arbitrary Python.
-- A path outside configured roots is an authorization/configuration issue. Do
-  not move or copy the project to evade it.
+- If the four tools are unavailable, stop and say the local MCP server is not
+  installed. Do not imitate it with arbitrary Python.
+- `project_not_allowed` means the path left the projects folder. Do not move or
+  copy the project to evade it.
 - Proxy encoding and rebuilding are external. `attach_proxy` only validates and
   attaches an already-generated manifest; attachment does not change source
   media, and final rendering still uses the original media.

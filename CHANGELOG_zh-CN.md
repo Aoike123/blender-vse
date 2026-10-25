@@ -4,6 +4,14 @@
 
 ## 尚未发布
 
+- 新增一键安装脚本：Linux/macOS 使用 `install.sh`，Windows 使用 `install.ps1`。脚本会在缺少
+  uv 时安装它，并通过 `uv tool` 安装 `blender-vse-mcp` 命令；服务注册交由 MCP 宿主完成。
+- 工程现在固定保存在 `<workspace>/blender-vse-projects` 中（workspace 为 MCP 宿主启动服务时
+  所在的文件夹），工具接受相对路径，例如 `demo.blend`。移除了 `BLENDER_VSE_PROJECTS_DIR`、
+  `VP_PROJECTS_DIR` 与 `BLENDER_VSE_ALLOWED_ROOTS`；不在工作文件夹中启动服务的宿主可使用
+  `BLENDER_VSE_WORKSPACE`。
+- 移除 Agent 引导式安装契约（`install-contract.json`、`blender_vse.installation`、DSH 安装
+  脚本、配置打印脚本、Claude 的 `projects_dir` 选项以及客户端兼容性文档）。
 - 项目许可证由 AGPL-3.0-only 改为 MIT 许可证；随附的 Blender MCP Bridge 保留原有
   MIT 声明。
 - 修复 Blender 5 及以上版本序列编辑器预览中，未设置字体的 TEXT 条目被绘制成

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -10,7 +9,6 @@ from pathlib import Path
 import pytest
 
 from blender_vse.mcp.boundary import (
-    ALLOWED_ROOTS_ENV,
     MCPAdapter,
     ProjectAccessError,
     ProjectBoundary,
@@ -52,7 +50,7 @@ def test_boundary_resolves_only_blend_files_below_allowed_roots(
         boundary.resolve(allowed / "nested" / "demo.BLEND")
         == (allowed / "nested" / "demo.BLEND").resolve()
     )
-    with pytest.raises(ProjectAccessError, match="outside") as denied:
+    with pytest.raises(ProjectAccessError, match="inside the workspace") as denied:
         boundary.resolve(outside / "demo.blend")
     assert denied.value.code == "project_not_allowed"
     with pytest.raises(ProjectAccessError, match=".blend") as wrong_suffix:
@@ -60,18 +58,24 @@ def test_boundary_resolves_only_blend_files_below_allowed_roots(
     assert wrong_suffix.value.code == "invalid_project_path"
 
 
-def test_boundary_uses_environment_roots_or_safe_projects_default(
-    tmp_path: Path,
-) -> None:
-    first = tmp_path / "one"
-    second = tmp_path / "two"
-    configured = ProjectBoundary.from_environment(
-        environ={ALLOWED_ROOTS_ENV: os.pathsep.join((str(first), str(second)))},
-    )
-    assert configured.roots == (first.resolve(), second.resolve())
+def test_boundary_confines_projects_to_the_workspace_folder(tmp_path: Path) -> None:
+    boundary = ProjectBoundary.from_environment(environ={}, cwd=tmp_path)
+    projects = (tmp_path / "blender-vse-projects").resolve()
+    assert boundary.roots == (projects,)
+    assert boundary.resolve("demo.blend") == projects / "demo.blend"
+    assert boundary.resolve("cuts/v2.blend") == projects / "cuts" / "v2.blend"
+    with pytest.raises(ProjectAccessError) as escaped:
+        boundary.resolve("../outside.blend")
+    assert escaped.value.code == "project_not_allowed"
 
-    fallback = ProjectBoundary.from_environment(environ={}, default_root=first)
-    assert fallback.roots == (first.resolve(),)
+
+def test_boundary_workspace_override_replaces_the_launch_folder(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    boundary = ProjectBoundary.from_environment(
+        environ={"BLENDER_VSE_WORKSPACE": str(workspace)},
+        cwd=tmp_path / "elsewhere",
+    )
+    assert boundary.roots == ((workspace / "blender-vse-projects").resolve(),)
 
 
 def test_boundary_rejects_an_existing_file_as_root(tmp_path: Path) -> None:

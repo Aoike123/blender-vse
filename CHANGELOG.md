@@ -4,6 +4,17 @@
 
 ## Unreleased
 
+- Added one-line installers, `install.sh` for Linux/macOS and `install.ps1` for
+  Windows. They install uv when missing and the `blender-vse-mcp` command with
+  `uv tool`; registering the server is left to the MCP host.
+- Projects now always live in `<workspace>/blender-vse-projects`, where the
+  workspace is the folder the MCP host starts the server in, and tools accept
+  paths relative to it such as `demo.blend`. Removed `BLENDER_VSE_PROJECTS_DIR`,
+  `VP_PROJECTS_DIR`, and `BLENDER_VSE_ALLOWED_ROOTS`; `BLENDER_VSE_WORKSPACE`
+  covers hosts that start servers elsewhere.
+- Removed the Agent-guided installation contract (`install-contract.json`,
+  `blender_vse.installation`, the DSH installer, config printers, the Claude
+  `projects_dir` option, and client compatibility docs).
 - Relicensed the project from AGPL-3.0-only to the MIT License. The vendored
   Blender MCP Bridge keeps its original MIT notice.
 - Fixed the Blender >= 5 sequencer preview drawing TEXT strips with an unset

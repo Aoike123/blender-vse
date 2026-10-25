@@ -35,28 +35,28 @@ Media generation, sourcing, and licensing remain the responsibility of the
 upper-layer workflow and its chosen tools. The resulting `.blend` stays
 editable, so a human can intervene without giving up control.
 
-## Install from GitHub
+## Install
 
-Send the repository link to Codex, Claude Code, or DeepSeek Harness (DSH) and
-ask it to install the plugin:
+Linux and macOS:
 
-```text
-Install this plugin: https://github.com/Aoike123/blender-vse-control
+```bash
+curl -LsSf https://raw.githubusercontent.com/Aoike123/blender-vse/main/install.sh | sh
 ```
 
-That is the intended installation flow. After copying the Skill and MCP
-integration, the installing Agent must ask where to store editable `.blend`
-projects and obtain an absolute directory path. Installation does not reach
-`ready` until the user confirms the directory and it is supplied as
-`BLENDER_VSE_PROJECTS_DIR`. The recommended location is
-`<workspace>/blender-vse-projects`. If there is no workspace or the user chooses
-an external directory, the Agent must clearly explain the implications and ask
-for confirmation.
+Windows (PowerShell):
 
-The [installation guide](docs/installation.md) covers installation through the
-Codex marketplace, Claude marketplace, and DSH Skill/Cordis, along with
-configuration and verification. Users should not need to edit client manifests
-by hand.
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/Aoike123/blender-vse/main/install.ps1 | iex"
+```
+
+The script installs [uv](https://docs.astral.sh/uv/) when it is missing, then
+installs the `blender-vse-mcp` command on uv's managed Python 3.12 and checks
+for Blender. Register `blender-vse-mcp` as a stdio MCP server in your host the
+same way as any other MCP server; nothing else needs configuring.
+
+Projects always live in `blender-vse-projects/` inside the folder the host runs
+in, and tools take paths relative to it, such as `demo.blend`. Moving or
+renaming the workspace keeps everything working.
 
 ## Core guarantees
 
@@ -78,13 +78,9 @@ by hand.
 - **Bounded resume:** compaction capsules keep durable intent and recent
   evidence within 4 KB, replacing older history with counts and digests.
 
-## Install and try it
+## Develop from source
 
-End users do not need Python preinstalled. If `uv` is missing, the installing
-Agent asks permission before bootstrapping it; `uv` then provisions a managed
-Python 3.12 runtime. Blender is installed separately. The installer guides
-users through FFmpeg setup only when proxy or media-fixture features require
-it. Source contributors still use Python 3.10+.
+Source contributors use Python 3.10+:
 
 ```bash
 python -m venv .venv
@@ -92,9 +88,8 @@ python -m pip install -e ".[dev]"
 blender-vse status
 ```
 
-To connect an Agent host, install `.[mcp]`, authorize project roots, and
-configure the host to launch `blender-vse-mcp`. See the
-[local MCP guide](docs/mcp.md).
+To connect an Agent host from a checkout, install `.[mcp]` and register
+`blender-vse-mcp`. See the [local MCP guide](docs/mcp.md).
 
 The repository also includes a progressive-disclosure
 [`blender-vse` Skill](skills/blender-vse/SKILL.md). It defines prompt-level
@@ -138,7 +133,7 @@ test profile, performance target, and hard timeout:
 | `coverage` | Host-side branch coverage | `python tests/run.py coverage` | 5 / 15 s |
 | `mcp` | Four-tool contract + one real stdio discovery | `python tests/run.py mcp` | 4 / 10 s |
 | `plugin` | Exact plugin-declared stdio launch | `python tests/run.py plugin` | 60 / 180 s |
-| `harness` | Real Claude + DSH package/config validation | `python tests/run.py harness` | 60 / 180 s |
+| `harness` | Real Claude package validation | `python tests/run.py harness` | 60 / 180 s |
 | `stateful` | Scenario replay + 250-cycle compaction eval | `python tests/run.py stateful` | 5 / 15 s |
 | `blender-headless` | Native media decode | `python tests/run.py blender-headless` | 15 / 60 s |
 | `blender-smoke` | One public multi-patch GUI workflow with read-after-write and persistence verification | `python tests/run.py blender-smoke` | 120 / 240 s |
@@ -159,8 +154,7 @@ are documented in [Testing](docs/testing.md).
 - [Local MCP server](docs/mcp.md)
 - [Agent Skill](skills/blender-vse/SKILL.md)
 - [Local Codex plugin](docs/plugin.md)
-- [Codex, Claude Code, and DSH installation](docs/installation.md)
-- [Client compatibility](docs/clients.md)
+- [Installation](docs/installation.md)
 - [Testing](docs/testing.md)
 - [Security policy](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)

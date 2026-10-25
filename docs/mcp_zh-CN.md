@@ -6,46 +6,19 @@ Blender VSE Control 提供一个可选的本地 Model Context Protocol 服务器
 
 ## 安装
 
-在软件包所在的 Python 环境中安装 MCP 可选依赖：
+使用[一键安装脚本](installation_zh-CN.md)，然后在宿主中把 `blender-vse-mcp` 注册为 stdio
+服务器。贡献者也可以运行 `python -m pip install -e ".[mcp]"` 或 `.[dev]`。适配器基于官方
+Python MCP SDK 2.x。
 
-```bash
-python -m pip install -e ".[mcp]"
-```
+`blender-vse-mcp` 是由宿主启动的长时间运行协议进程。直接运行时看起来处于空闲状态，因为它在
+`stdin` 上等待消息。
 
-如需 MCP Inspector 等贡献者工具，请改为安装 `.[dev]`。适配器基于官方 Python MCP SDK 2.x，并通过本地 `stdio` 通信。
+## 工程路径
 
-## 授权项目目录
-
-每次工具调用都必须提供明确的 `.blend` 路径。服务器会在调用 Blender 前对路径进行规范化，并且只接受位于授权目录下的项目。请将 `BLENDER_VSE_ALLOWED_ROOTS` 设置为使用操作系统路径分隔符分隔的目录列表：
-
-```powershell
-$env:BLENDER_VSE_ALLOWED_ROOTS = "D:\VideoProjects;E:\SharedEdits"
-```
-
-```bash
-export BLENDER_VSE_ALLOWED_ROOTS=/srv/video-projects:/mnt/shared-edits
-```
-
-该变量缺失时，服务器只允许访问 `BLENDER_VSE_PROJECTS_DIR`；后者默认指向相应操作系统用户数据目录下的项目目录。配置的根目录可以稍后创建，但已存在的根路径必须是目录。配置项和工具调用都应尽量使用绝对路径。
-
-## 连接 Agent 宿主
-
-`blender-vse-mcp` 是由 MCP 宿主启动的长时间运行协议进程。直接运行时，它看起来处于空闲状态，因为正在 `stdin` 上等待消息。典型的 Windows MCP 宿主配置如下：
-
-```json
-{
-  "mcpServers": {
-    "blender-vse": {
-      "command": "D:\\path\\to\\venv\\Scripts\\blender-vse-mcp.exe",
-      "env": {
-        "BLENDER_VSE_ALLOWED_ROOTS": "D:\\VideoProjects"
-      }
-    }
-  }
-}
-```
-
-在 macOS 或 Linux 上，`command` 应指向 `/absolute/path/to/.venv/bin/blender-vse-mcp`。不同 Agent 宿主的配置位置各不相同，但命令和环境契约保持一致。Agent 宿主通常会在受限环境中启动子进程，因此应把允许的根目录写入配置，而不是依赖交互式 Shell 中导出的环境变量。
+工程保存在 `<workspace>/blender-vse-projects` 中，workspace 是宿主启动服务时所在的文件夹。
+每次工具调用都使用相对于该文件夹的 `.blend` 路径，例如 `demo.blend`。服务器会在调用 Blender
+前规范化路径，越出该文件夹的路径会以 `project_not_allowed` 拒绝。只有当宿主不在工作文件夹中
+启动 MCP 服务时，才需要设置 `BLENDER_VSE_WORKSPACE`。
 
 贡献者可以使用以下命令检查生成的工具 Schema：
 

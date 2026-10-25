@@ -6,8 +6,8 @@
     "name": "Aoike",
     "url": "https://github.com/Aoike123"
   },
-  "homepage": "https://github.com/Aoike123/blender-vse-control#readme",
-  "repository": "https://github.com/Aoike123/blender-vse-control",
+  "homepage": "https://github.com/Aoike123/blender-vse#readme",
+  "repository": "https://github.com/Aoike123/blender-vse",
   "license": "MIT",
   "keywords": [
     "blender",
@@ -36,7 +36,7 @@
       "Interactive",
       "Write"
     ],
-    "websiteURL": "https://github.com/Aoike123/blender-vse-control",
+    "websiteURL": "https://github.com/Aoike123/blender-vse",
     "defaultPrompt": [
       "Inspect this named .blend VSE project and summarize its editable timeline.",
       "Apply these edits without silently overwriting human changes.",

@@ -34,7 +34,7 @@ def test_plugin_manifest_matches_package_and_component_paths() -> None:
     assert (ROOT / manifest["skills"]).is_dir()
     assert (ROOT / manifest["mcpServers"]).is_file()
     assert manifest["license"] == "MIT"
-    assert manifest["repository"] == "https://github.com/Aoike123/blender-vse-control"
+    assert manifest["repository"] == "https://github.com/Aoike123/blender-vse"
     interface = manifest["interface"]
     assert 1 <= len(interface["defaultPrompt"]) <= 3
     assert all(len(prompt) <= 128 for prompt in interface["defaultPrompt"])
@@ -68,7 +68,7 @@ def test_plugin_mcp_config_runs_local_source_with_safe_approvals() -> None:
     )
     inherited = set(server["env_vars"])
     assert len(inherited) == len(server["env_vars"])
-    assert {"PATH", "UV_OFFLINE", "BLENDER_VSE_ALLOWED_ROOTS"} <= inherited
+    assert {"PATH", "UV_OFFLINE", "BLENDER_VSE_WORKSPACE"} <= inherited
     assert not any(
         marker in name.upper()
         for name in inherited
@@ -103,7 +103,6 @@ def test_plugin_bundle_is_deterministic_and_allowlisted(tmp_path: Path) -> None:
     assert f"{prefix}/assets/icon.png" in names
     assert f"{prefix}/assets/logo.png" in names
     assert f"{prefix}/assets/logo-dark.png" in names
-    assert f"{prefix}/install-contract.json" in names
     assert f"{prefix}/clients/claude/mcp.json" in names
     assert f"{prefix}/skills/blender-vse/SKILL.md" in names
     assert f"{prefix}/skills/blender-vse/SKILL_zh-CN.md" in names
@@ -111,12 +110,10 @@ def test_plugin_bundle_is_deterministic_and_allowlisted(tmp_path: Path) -> None:
     assert f"{prefix}/skills/blender-vse/assets/logo.png" in names
     assert f"{prefix}/src/blender_vse/mcp/server.py" in names
     assert f"{prefix}/scripts/run_plugin_mcp.py" in names
-    assert f"{prefix}/scripts/print_dsh_config.py" in names
     for document in (
         "README",
         "THIRD_PARTY_NOTICES",
         "docs/configuration",
-        "docs/clients",
         "docs/context-model",
         "docs/installation",
         "docs/mcp",

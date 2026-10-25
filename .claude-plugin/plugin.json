@@ -8,8 +8,8 @@
     "name": "Aoike",
     "url": "https://github.com/Aoike123"
   },
-  "homepage": "https://github.com/Aoike123/blender-vse-control#readme",
-  "repository": "https://github.com/Aoike123/blender-vse-control",
+  "homepage": "https://github.com/Aoike123/blender-vse#readme",
+  "repository": "https://github.com/Aoike123/blender-vse",
   "license": "MIT",
   "keywords": [
     "blender",
@@ -26,13 +26,5 @@
     "local-first"
   ],
   "skills": "./skills/",
-  "mcpServers": "./clients/claude/mcp.json",
-  "userConfig": {
-    "projects_dir": {
-      "type": "directory",
-      "title": "Blender VSE project directory",
-      "description": "Absolute directory for editable .blend projects and media. Prefer <workspace>/blender-vse-projects; an external directory requires confirmation.",
-      "required": true
-    }
-  }
+  "mcpServers": "./clients/claude/mcp.json"
 }

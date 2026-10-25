@@ -22,7 +22,7 @@
 
 | 错误码 | 动作 |
 | --- | --- |
-| `project_not_allowed` | 请用户在 `BLENDER_VSE_ALLOWED_ROOTS` 授权包含目录；不得以移动文件作为规避方案。 |
+| `project_not_allowed` | 改用相对于工作文件夹 `blender-vse-projects` 的路径；不得以移动文件作为规避方案。 |
 | `project_not_found` | 确认准确路径。只有明确要求新项目时使用 `create_if_missing`。 |
 | `project_mismatch` | 停止。不要切离或关闭无关的用户项目。 |
 | `gui_not_visible`、`vse_not_visible`、`gui_not_stable` | 报告可见会话阻塞，不回退到隐藏/无头编辑。 |

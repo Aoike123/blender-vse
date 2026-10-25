@@ -24,7 +24,7 @@ the user's intent. Then read once more before patching.
 
 | Codes | Action |
 | --- | --- |
-| `project_not_allowed` | Ask the user to authorize the containing directory in `BLENDER_VSE_ALLOWED_ROOTS`; do not relocate the file as a workaround. |
+| `project_not_allowed` | Use a path relative to the workspace `blender-vse-projects` folder; do not relocate the file as a workaround. |
 | `project_not_found` | Confirm the exact path. Use `create_if_missing` only for an explicitly requested new project. |
 | `project_mismatch` | Stop. Do not switch away from or close an unrelated human project. |
 | `gui_not_visible`, `vse_not_visible`, `gui_not_stable` | Report the visible-session blocker. Do not fall back to hidden/headless editing. |

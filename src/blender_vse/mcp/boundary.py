@@ -12,11 +12,10 @@ from pathlib import Path
 from typing import Any
 
 from blender_vse.api import BlenderVSE
-from blender_vse.blender.config import PROJECTS_DIR
+from blender_vse.blender.config import PROJECTS_DIRNAME, projects_dir
 from blender_vse.context import CONTEXT_POLICY
 
 LOGGER = logging.getLogger(__name__)
-ALLOWED_ROOTS_ENV = "BLENDER_VSE_ALLOWED_ROOTS"
 
 
 class ProjectAccessError(ValueError):
@@ -33,7 +32,11 @@ def _normalized_path_key(path: Path) -> str:
 
 
 class ProjectBoundary:
-    """Resolve explicit ``.blend`` paths inside configured directory roots."""
+    """Resolve ``.blend`` paths inside the workspace project directory.
+
+    Relative paths such as ``demo.blend`` resolve against the first root, so
+    callers never need to know where the workspace lives on disk.
+    """
 
     def __init__(self, roots: Iterable[str | Path]):
         normalized: list[Path] = []
@@ -58,19 +61,11 @@ class ProjectBoundary:
         cls,
         *,
         environ: Mapping[str, str] | None = None,
-        default_root: str | Path | None = None,
+        cwd: str | Path | None = None,
     ) -> ProjectBoundary:
-        """Load roots from ``BLENDER_VSE_ALLOWED_ROOTS`` or the projects dir."""
+        """Confine projects to ``<workspace>/blender-vse-projects``."""
 
-        values = os.environ if environ is None else environ
-        configured = values.get(ALLOWED_ROOTS_ENV, "").strip()
-        if configured:
-            roots = [
-                part.strip() for part in configured.split(os.pathsep) if part.strip()
-            ]
-        else:
-            roots = [default_root if default_root is not None else PROJECTS_DIR]
-        return cls(roots)
+        return cls([projects_dir(environ=environ, cwd=cwd)])
 
     @property
     def roots(self) -> tuple[Path, ...]:
@@ -79,14 +74,17 @@ class ProjectBoundary:
         return self._roots
 
     def resolve(self, project: str | Path) -> Path:
-        """Resolve and authorize one explicit Blender project path."""
+        """Resolve and authorize one Blender project path."""
 
         if not isinstance(project, (str, Path)) or not str(project).strip():
             raise ProjectAccessError(
                 "invalid_project_path", "project must be a non-empty path"
             )
         try:
-            candidate = Path(project).expanduser().resolve(strict=False)
+            candidate = Path(project).expanduser()
+            if not candidate.is_absolute():
+                candidate = self._roots[0] / candidate
+            candidate = candidate.resolve(strict=False)
         except (OSError, RuntimeError, ValueError) as exc:
             raise ProjectAccessError(
                 "invalid_project_path", "project path could not be resolved"
@@ -102,7 +100,7 @@ class ProjectBoundary:
         if not any(candidate.is_relative_to(root) for root in self._roots):
             raise ProjectAccessError(
                 "project_not_allowed",
-                f"project is outside directories configured by {ALLOWED_ROOTS_ENV}",
+                f"project must be inside the workspace {PROJECTS_DIRNAME} folder",
             )
         return candidate
 
@@ -232,7 +230,6 @@ class MCPAdapter:
 
 
 __all__ = [
-    "ALLOWED_ROOTS_ENV",
     "MCPAdapter",
     "ProjectAccessError",
     "ProjectBoundary",

@@ -23,17 +23,26 @@ Blender VSE Control 是时间线执行层，不承担创意导演的职责。如
 素材生成、获取和授权仍由上层流程及其所选工具负责。最终 `.blend` 始终可编辑，人工可以
 随时介入，而不会失去对时间线的控制。
 
-## 从 GitHub 安装
+## 安装
 
-将仓库链接发给 Codex、Claude Code 或 DeepSeek Harness（DSH），让它安装插件：
+Linux 与 macOS：
 
-```text
-帮我安装这个插件：https://github.com/Aoike123/blender-vse-control
+```bash
+curl -LsSf https://raw.githubusercontent.com/Aoike123/blender-vse/main/install.sh | sh
 ```
 
-这是预期的安装流程。复制 Skill 和 MCP 集成后，安装 Agent 必须询问可编辑的 `.blend` 项目应存放在哪里，并取得绝对目录路径。只有用户确认该目录，并将其作为 `BLENDER_VSE_PROJECTS_DIR` 传入后，安装状态才会变为 `ready`。推荐路径为 `<workspace>/blender-vse-projects`。如果不存在工作区，或用户选择了工作区外的目录，Agent 必须明确说明这样做的影响并请求确认。
+Windows（PowerShell）：
 
-Codex Marketplace、Claude Marketplace 和 DSH Skill/Cordis 的安装、配置与验证流程见[安装指南](docs/installation_zh-CN.md)。用户不需要手动编辑客户端清单。
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/Aoike123/blender-vse/main/install.ps1 | iex"
+```
+
+脚本会在缺少 [uv](https://docs.astral.sh/uv/) 时先安装它，再用 uv 托管的 Python 3.12 安装
+`blender-vse-mcp` 命令，并检查 Blender 是否可用。之后像添加其他 MCP 服务器一样，在宿主中把
+`blender-vse-mcp` 注册为 stdio MCP 服务器即可，无需其他配置。
+
+工程始终保存在宿主所在工作文件夹下的 `blender-vse-projects/` 中，工具使用相对于它的路径，
+例如 `demo.blend`。工作文件夹移动或改名后依然可用。
 
 ## 核心保证
 
@@ -46,9 +55,9 @@ Codex Marketplace、Claude Marketplace 和 DSH Skill/Cordis 的安装、配置�
 - **有界上下文：** 读取默认返回摘要；`range` / `detail` 页面只公开选定字段，并携带与修订绑定的游标；写入、验证和错误回执同样受字节预算限制。
 - **有界恢复：** 压缩胶囊会在 4 KB 内保存持久意图和近期证据，以计数和摘要替代更早的历史记录。
 
-## 安装与快速体验
+## 从源码开发
 
-最终用户无需预装 Python。若缺少 `uv`，安装 Agent 会先请求许可，再完成引导安装；`uv` 随后会提供托管的 Python 3.12 运行时。Blender 需要单独安装。只有在需要生成代理媒体或测试素材时，安装程序才会引导配置 FFmpeg。源代码贡献者仍需使用 Python 3.10+。
+源代码贡献者使用 Python 3.10+：
 
 ```bash
 python -m venv .venv
@@ -56,7 +65,7 @@ python -m pip install -e ".[dev]"
 blender-vse status
 ```
 
-若要连接 Agent 宿主，请安装 `.[mcp]`，授权可访问的项目根目录，并配置宿主启动 `blender-vse-mcp`。参见[本地 MCP 指南](docs/mcp_zh-CN.md)。
+若要从源码连接 Agent 宿主，请安装 `.[mcp]` 并注册 `blender-vse-mcp`。参见[本地 MCP 指南](docs/mcp_zh-CN.md)。
 
 仓库还附带采用渐进式披露的 [`blender-vse` Skill](skills/blender-vse/SKILL_zh-CN.md)。它规定提示层面的 `read`、`patch` 和恢复规范，MCP 服务负责具体执行。这两层都不会存储宿主的对话历史。
 
@@ -89,7 +98,7 @@ blender-vse verify ./projects/demo.blend
 | `coverage` | 宿主端 Python 分支覆盖率 | `python tests/run.py coverage` | 5 / 15 秒 |
 | `mcp` | 四个工具的契约测试，以及一次真实的 stdio 发现 | `python tests/run.py mcp` | 4 / 10 秒 |
 | `plugin` | 严格按照插件声明启动 stdio | `python tests/run.py plugin` | 60 / 180 秒 |
-| `harness` | 真实 Claude + DSH 打包与配置验证 | `python tests/run.py harness` | 60 / 180 秒 |
+| `harness` | 真实 Claude 打包验证 | `python tests/run.py harness` | 60 / 180 秒 |
 | `stateful` | 场景重放和 250 轮压缩评估 | `python tests/run.py stateful` | 5 / 15 秒 |
 | `blender-headless` | Blender 原生媒体解码 | `python tests/run.py blender-headless` | 15 / 60 秒 |
 | `blender-smoke` | 一次公开的多 Patch GUI 流程，包含写后读取与持久化验证 | `python tests/run.py blender-smoke` | 120 / 240 秒 |
@@ -110,8 +119,7 @@ blender-vse verify ./projects/demo.blend
 - [本地 MCP 服务](docs/mcp_zh-CN.md)
 - [Agent Skill](skills/blender-vse/SKILL_zh-CN.md)
 - [本地 Codex 插件](docs/plugin_zh-CN.md)
-- [Codex、Claude Code 与 DSH 安装](docs/installation_zh-CN.md)
-- [客户端兼容性](docs/clients_zh-CN.md)
+- [安装](docs/installation_zh-CN.md)
 - [测试指南](docs/testing_zh-CN.md)
 - [安全策略](SECURITY_zh-CN.md)
 - [贡献指南](CONTRIBUTING_zh-CN.md)

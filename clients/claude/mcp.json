@@ -13,11 +13,7 @@
         "mcp==2.1.1",
         "python",
         "${CLAUDE_PLUGIN_ROOT}/scripts/run_plugin_mcp.py"
-      ],
-      "env": {
-        "BLENDER_VSE_PROJECTS_DIR": "${user_config.projects_dir}",
-        "BLENDER_VSE_ALLOWED_ROOTS": "${user_config.projects_dir}"
-      }
+      ]
     }
   }
 }

@@ -44,9 +44,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/Aoike123/blender-vse-control"
-Repository = "https://github.com/Aoike123/blender-vse-control.git"
-Issues = "https://github.com/Aoike123/blender-vse-control/issues"
+Homepage = "https://github.com/Aoike123/blender-vse"
+Repository = "https://github.com/Aoike123/blender-vse.git"
+Issues = "https://github.com/Aoike123/blender-vse/issues"
 
 [project.optional-dependencies]
 mcp = [

@@ -9,61 +9,22 @@ global "current project."
 
 ## Install
 
-Install the MCP extra in the same Python environment as the package:
+Use the [one-line installer](installation.md), then register
+`blender-vse-mcp` in your host as a stdio server. Contributors can instead run
+`python -m pip install -e ".[mcp]"` or `.[dev]`. The adapter targets the
+official Python MCP SDK 2.x.
 
-```bash
-python -m pip install -e ".[mcp]"
-```
+`blender-vse-mcp` is a long-running protocol process launched by the host. Run
+directly, it looks idle because it waits for messages on `stdin`.
 
-For contributor tools, including MCP Inspector, install `.[dev]` instead. The
-adapter targets the official Python MCP SDK 2.x and communicates over local
-`stdio`.
+## Project paths
 
-## Authorize project directories
-
-Every tool call specifies an explicit `.blend` path. The server canonicalizes
-the path before contacting Blender and accepts it only if it is under an allowed
-directory. Set `BLENDER_VSE_ALLOWED_ROOTS` to a list delimited by the operating
-system's path separator:
-
-```powershell
-$env:BLENDER_VSE_ALLOWED_ROOTS = "D:\VideoProjects;E:\SharedEdits"
-```
-
-```bash
-export BLENDER_VSE_ALLOWED_ROOTS=/srv/video-projects:/mnt/shared-edits
-```
-
-If the variable is absent, the server allows only `BLENDER_VSE_PROJECTS_DIR`,
-whose default is the package's OS-specific user-data projects directory.
-Configured roots may be created later, but any root that already exists must be
-a directory. Use absolute paths in both configuration and tool calls whenever
-possible.
-
-## Connect a host
-
-`blender-vse-mcp` is a long-running protocol process launched by an MCP host.
-When run directly, it appears idle because it is waiting for messages on
-`stdin`. A typical Windows host entry is:
-
-```json
-{
-  "mcpServers": {
-    "blender-vse": {
-      "command": "D:\\path\\to\\venv\\Scripts\\blender-vse-mcp.exe",
-      "env": {
-        "BLENDER_VSE_ALLOWED_ROOTS": "D:\\VideoProjects"
-      }
-    }
-  }
-}
-```
-
-On macOS or Linux, point `command` at
-`/absolute/path/to/.venv/bin/blender-vse-mcp`. Host configuration locations
-vary, but the command and environment contract remain the same. Hosts commonly
-start subprocesses with a restricted environment, so configure the allowed
-roots in the host entry instead of relying on an interactive shell export.
+Projects live in `<workspace>/blender-vse-projects`, where the workspace is the
+folder the host starts the server in. Every tool call names a `.blend` path
+relative to that folder, such as `demo.blend`. The server canonicalizes the path
+before contacting Blender and rejects any path that leaves the folder with
+`project_not_allowed`. Set `BLENDER_VSE_WORKSPACE` only when a host starts MCP
+servers outside the workspace.
 
 Contributors can inspect the generated tool schemas with:
 

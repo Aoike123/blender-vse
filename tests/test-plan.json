@@ -67,14 +67,14 @@
     },
     "harness": {
       "kind": "scripts",
-      "description": "Validate Claude packaging and DSH Skill/Cordis composition with real CLIs",
-      "requires": ["python", "node", "npx", "dsh", "uv"],
+      "description": "Validate Claude packaging with the real Claude CLI",
+      "requires": ["python", "node", "npx", "uv"],
       "target_seconds": 60,
       "timeout_seconds": 180,
       "scripts": [
         {
           "path": "tests/clients/harness_smoke.py",
-          "label": "Claude and DSH client packaging",
+          "label": "Claude client packaging",
           "timeout_seconds": 160,
           "direct_mutation": false
         }

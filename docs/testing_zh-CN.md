@@ -14,7 +14,7 @@
 | `coverage` | 同一核心测试及分支覆盖率 | 否 | 5 / 15 秒 |
 | `mcp` | 安全边界、四工具接口、覆盖率及真实 stdio | 否 | 4 / 10 秒 |
 | `plugin` | 精确 `.mcp.json` 命令与四工具发现 | 否 | 60 / 180 秒 |
-| `harness` | 真实 Claude 清单验证及 DSH Skill/Cordis 组合 | 否 | 60 / 180 秒 |
+| `harness` | 真实 Claude 清单验证与插件 MCP 连接 | 否 | 60 / 180 秒 |
 | `stateful` | 场景回放及 250 轮上下文/压缩评估 | 否 | 5 / 15 秒 |
 | `blender-headless` | 原生媒体检查器 | 否 | 15 / 60 秒 |
 | `blender-smoke` | 一条公开 API 工作流 | 是 | 120 / 240 秒 |
@@ -39,7 +39,7 @@ python tests/run.py blender-smoke
 
 插件档位首次运行时可能需要准备本地 uv 环境，因此 60 秒目标包含依赖解析时间。它只列出 MCP 工具，不会打开 Blender 或修改项目。从检出目录启动并预热缓存后，从解压归档启动的过程会被强制设为离线模式。
 
-Harness 档位是明确的发布门槛，不属于拉取请求 CI 任务。它使用固定版本的 Claude Code CLI 严格验证并安装插件，持久化必需的目录选项，连接插件的 MCP 服务器，再通过已安装的 DSH CLI 组合 Skill/Cordis 状态。所有客户端状态都隔离在仓库的临时目录中；首次运行可能需要访问 npm，但不会修改用户的 Claude 或 DSH 配置。
+Harness 档位是明确的发布门槛，不属于拉取请求 CI 任务。它使用固定版本的 Claude Code CLI 严格验证并安装插件，并连接插件的 MCP 服务器。所有客户端状态都隔离在仓库的临时目录中；首次运行可能需要访问 npm，但不会修改用户的 Claude 配置。
 
 运行 GUI 档位的进程必须与 Blender 位于同一交互式桌面。服务、沙盒和隔离桌面即使能够枚举 Blender 窗口，也会正确返回 `gui_not_visible`；不得为了让托管自动化通过而削弱这项检查。
 

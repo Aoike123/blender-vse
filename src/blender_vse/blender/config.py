@@ -55,12 +55,6 @@ def _default_state_dir() -> Path:
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS_DIR = PACKAGE_ROOT / "schemas"
 STATE_DIR = _default_state_dir()
-PROJECTS_DIR = Path(
-    env_value(
-        "BLENDER_VSE_PROJECTS_DIR", "VP_PROJECTS_DIR", str(STATE_DIR / "projects")
-    )
-    or STATE_DIR / "projects"
-).expanduser()
 TEST_MEDIA_DIR = Path(
     env_value("BLENDER_VSE_TEST_MEDIA_DIR", default=str(STATE_DIR / "test-media"))
     or STATE_DIR / "test-media"
@@ -74,64 +68,36 @@ def runtime_tmp_dir() -> Path:
     ).expanduser()
 
 
-def project_storage_report(
+PROJECTS_DIRNAME = "blender-vse-projects"
+WORKSPACE_ENV = "BLENDER_VSE_WORKSPACE"
+
+
+def workspace_root(
     *,
     environ: Mapping[str, str] | None = None,
-    default_projects_dir: str | Path | None = None,
-) -> dict[str, object]:
-    """Describe whether the user explicitly selected a safe project directory.
+    cwd: str | Path | None = None,
+) -> Path:
+    """Return the workspace folder the host launched the server in.
 
-    The OS-specific fallback remains usable for backwards compatibility, but a
-    new Harness installation is not considered ready until the preferred
-    ``BLENDER_VSE_PROJECTS_DIR`` variable names an absolute directory.  This
-    distinction lets installers report ``installed`` without incorrectly
-    reporting ``ready`` before the user has chosen where editable projects live.
+    MCP hosts start stdio servers inside the user's working folder, so the
+    process working directory is the workspace. ``BLENDER_VSE_WORKSPACE`` only
+    exists for hosts that launch servers somewhere else.
     """
 
     values = os.environ if environ is None else environ
-    preferred = values.get("BLENDER_VSE_PROJECTS_DIR", "").strip()
-    legacy = values.get("VP_PROJECTS_DIR", "").strip()
-    if preferred:
-        configured = preferred
-        source = "BLENDER_VSE_PROJECTS_DIR"
-    elif legacy:
-        configured = legacy
-        source = "VP_PROJECTS_DIR"
-    else:
-        configured = str(
-            default_projects_dir
-            if default_projects_dir is not None
-            else STATE_DIR / "projects"
-        )
-        source = "os-default"
+    override = values.get(WORKSPACE_ENV, "").strip()
+    base = Path(override).expanduser() if override else Path(cwd or Path.cwd())
+    return base.resolve(strict=False)
 
-    projects_path = Path(configured).expanduser()
-    projects_is_absolute = projects_path.is_absolute()
-    projects_resolved = projects_path.resolve(strict=False)
 
-    allowed_setting = values.get("BLENDER_VSE_ALLOWED_ROOTS", "").strip()
-    if allowed_setting:
-        raw_roots = [part.strip() for part in allowed_setting.split(os.pathsep)]
-        roots = [
-            str(Path(part).expanduser().resolve(strict=False))
-            for part in raw_roots
-            if part
-        ]
-        roots_source = "BLENDER_VSE_ALLOWED_ROOTS"
-    else:
-        roots = [str(projects_resolved)]
-        roots_source = "projects_dir"
+def projects_dir(
+    *,
+    environ: Mapping[str, str] | None = None,
+    cwd: str | Path | None = None,
+) -> Path:
+    """Editable ``.blend`` projects always live in ``<workspace>/blender-vse-projects``."""
 
-    ready = source == "BLENDER_VSE_PROJECTS_DIR" and projects_is_absolute
-    return {
-        "projects_dir": str(projects_resolved),
-        "configuration_source": source,
-        "explicitly_configured": source != "os-default",
-        "ready": ready,
-        "configuration_required": not ready,
-        "allowed_roots": roots,
-        "allowed_roots_source": roots_source,
-    }
+    return workspace_root(environ=environ, cwd=cwd) / PROJECTS_DIRNAME
 
 
 def _blender_candidates() -> list[str]:
@@ -304,13 +270,11 @@ def environment_report() -> dict:
     ffprobe = find_ffprobe()
     uv = shutil.which("uv")
     node = _version(["node", "--version"])
-    project_storage = project_storage_report()
+    workspace = workspace_root()
     media_tools_available = ffmpeg is not None and ffprobe is not None
     setup_next_actions = []
     if uv is None:
         setup_next_actions.append("install_uv_with_user_approval")
-    if project_storage["configuration_required"]:
-        setup_next_actions.append("confirm_project_directory")
     if blender is None:
         setup_next_actions.append("install_blender")
     if not media_tools_available:
@@ -342,8 +306,8 @@ def environment_report() -> dict:
         "node": {"version": node, "available": node is not None},
         "python": {"executable": sys.executable, "version": sys.version.split()[0]},
         "state_dir": str(STATE_DIR),
-        "projects_dir": str(PROJECTS_DIR),
-        "project_storage": project_storage,
+        "workspace": str(workspace),
+        "projects_dir": str(workspace / PROJECTS_DIRNAME),
         "setup": {
             "python": {
                 "strategy": "uv-managed",
@@ -365,14 +329,9 @@ def environment_report() -> dict:
                 "available": media_tools_available,
                 "install_url": FFMPEG_INSTALL_URL,
             },
-            "installation_ready_for_editing": bool(
-                project_storage["ready"] and uv is not None and blender
-            ),
+            "installation_ready_for_editing": bool(uv is not None and blender),
             "installation_ready_for_full_features": bool(
-                project_storage["ready"]
-                and uv is not None
-                and blender
-                and media_tools_available
+                uv is not None and blender and media_tools_available
             ),
             "next_actions": setup_next_actions,
         },

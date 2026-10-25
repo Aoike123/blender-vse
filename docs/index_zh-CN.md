@@ -22,8 +22,7 @@ Blender VSE Control 是面向 Agent 辅助剪辑的本地控制层，为持久�
 | [本地 MCP 服务](mcp_zh-CN.md) | 安装、授权项目根目录、连接宿主，以及使用四个工具 |
 | [`blender-vse` Skill](../skills/blender-vse/SKILL_zh-CN.md) | 提示层的工具使用规范、命令路由、恢复，以及压缩后的续作 |
 | [本地 Codex 插件](plugin_zh-CN.md) | 构建、安装、配置和验证 Skill 与 stdio 组合包 |
-| [Harness 安装](installation_zh-CN.md) | 在 Codex、Claude Code 或 DSH 上安装，并确认项目存储目录 |
-| [客户端兼容性](clients_zh-CN.md) | Codex、Claude Code/Desktop、DSH、通用 stdio 以及公开 ChatGPT 的边界 |
+| [安装](installation_zh-CN.md) | Linux、macOS、Windows 一键安装，以及工程保存位置 |
 
 ## 理解与集成
 

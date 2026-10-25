@@ -21,7 +21,7 @@ prerequisites fail during preflight instead of after a partial profile run.
 | `coverage` | Same core tests with branch coverage | No | 5 / 15 s |
 | `mcp` | Security boundary, four-tool surface, coverage, and real stdio | No | 4 / 10 s |
 | `plugin` | Exact `.mcp.json` command and four-tool discovery | No | 60 / 180 s |
-| `harness` | Real Claude manifest validation plus DSH Skill/Cordis composition | No | 60 / 180 s |
+| `harness` | Real Claude manifest validation and plugin MCP connection | No | 60 / 180 s |
 | `stateful` | Scenario replay + 250-cycle context/compaction eval | No | 5 / 15 s |
 | `blender-headless` | Native media inspector | No | 15 / 60 s |
 | `blender-smoke` | One public API workflow | Yes | 120 / 240 s |
@@ -56,10 +56,9 @@ warms the cache, the extracted-bundle launch is forced offline.
 
 The Harness profile is an explicit release gate rather than a pull-request CI
 job. It strictly validates and installs the plugin with a pinned Claude Code
-CLI, persists the required directory option, connects the plugin MCP server,
-and composes DSH Skill/Cordis state with the installed DSH CLI. All client state
-is isolated in temporary storage within the repository; npm access may be required on
-the first run, and the user's Claude or DSH configuration is not edited.
+CLI and connects the plugin MCP server. All client state is isolated in
+temporary storage within the repository; npm access may be required on the
+first run, and the user's Claude configuration is not edited.
 
 GUI profiles must run from a process attached to the same interactive desktop
 as Blender. Service, sandbox, and isolated desktop sessions correctly fail with

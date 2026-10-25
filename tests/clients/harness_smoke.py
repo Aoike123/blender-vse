@@ -1,4 +1,4 @@
-"""Validate the Claude and DSH packages with their real local CLIs."""
+"""Validate the Claude package with its real local CLI."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -106,8 +105,6 @@ def _claude(npx: str, temp: Path) -> dict[str, object]:
         marketplace_root / "plugins" / "blender-vse",
     )
     claude_config = temp / "claude-config"
-    projects = temp / "claude projects"
-    projects.mkdir()
     environment = dict(os.environ)
     environment["CLAUDE_CONFIG_DIR"] = str(claude_config)
     environment["NO_COLOR"] = "1"
@@ -123,8 +120,6 @@ def _claude(npx: str, temp: Path) -> dict[str, object]:
             "blender-vse@blender-vse",
             "--scope",
             "user",
-            "--config",
-            f"projects_dir={projects}",
         ],
         env=environment,
     )
@@ -136,10 +131,6 @@ def _claude(npx: str, temp: Path) -> dict[str, object]:
         raise RuntimeError(
             f"Claude isolated install expected one cached Skill, found {cached_skills}"
         )
-    settings = json.loads((claude_config / "settings.json").read_text(encoding="utf-8"))
-    configured = settings["pluginConfigs"]["blender-vse@blender-vse"]["options"]
-    if configured.get("projects_dir") != str(projects):
-        raise RuntimeError("Claude projects_dir userConfig value was not persisted")
     health = _run(
         [npx, "--yes", CLAUDE_PACKAGE, "mcp", "list"],
         env=environment,
@@ -154,62 +145,14 @@ def _claude(npx: str, temp: Path) -> dict[str, object]:
         "marketplace": True,
         "plugin": True,
         "isolated_install": True,
-        "projects_dir_configured": True,
         "mcp_connected": True,
-    }
-
-
-def _dsh(dsh: str, temp: Path) -> dict[str, object]:
-    dsh_home = temp / "dsh-home"
-    workspace = temp / "workspace"
-    projects = workspace / "blender-vse-projects"
-    install_output = _run(
-        [
-            sys.executable,
-            str(ROOT / "scripts" / "install_dsh.py"),
-            "--dsh-home",
-            str(dsh_home),
-            "--projects-dir",
-            str(projects),
-            "--workspace-root",
-            str(workspace),
-            "--apply",
-        ]
-    )
-    install = json.loads(install_output)
-    if install.get("status") != "configured" or install.get("ready") is not False:
-        raise RuntimeError("DSH installer did not stop at configured")
-    patch = str(install["mcp_patch"]["path"])
-    environment = dict(os.environ)
-    environment["DSH_HOME"] = str(dsh_home)
-    composed = _run(
-        [dsh, "--profile", "web", "--patch", patch, "--dump-config"],
-        env=environment,
-    )
-    required = (
-        "mcp-blender-vse-control",
-        "serverName: blender-vse-control",
-        "BLENDER_VSE_PROJECTS_DIR:",
-        "run_plugin_mcp.py",
-    )
-    missing = [value for value in required if value not in composed]
-    if missing:
-        raise RuntimeError(f"DSH composed config missing: {missing}")
-    version = _run([dsh, "--version"]).strip()
-    return {
-        "version": version,
-        "skill": str(dsh_home / "skills" / "blender-vse"),
-        "patch": patch,
-        "composed": True,
-        "ready": True,
     }
 
 
 def main() -> int:
     npx = shutil.which("npx")
-    dsh = shutil.which("dsh")
-    if not npx or not dsh:
-        raise RuntimeError("harness smoke requires both npx and dsh on PATH")
+    if not npx:
+        raise RuntimeError("harness smoke requires npx on PATH")
 
     temp_parent = (ROOT / ".tmp").resolve()
     temp_parent.mkdir(exist_ok=True)
@@ -217,7 +160,6 @@ def main() -> int:
     try:
         result = {
             "claude": _claude(npx, temp),
-            "dsh": _dsh(dsh, temp),
             "components": {
                 "skills": 1,
                 "mcp_servers": 1,

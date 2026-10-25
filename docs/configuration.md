@@ -5,25 +5,11 @@
 All settings are optional. Preferred names use `BLENDER_VSE_*`; listed `VP_*`
 aliases exist only for migration compatibility.
 
-## Project storage readiness
+## Project location
 
-`BLENDER_VSE_PROJECTS_DIR` remains optional at runtime for backward
-compatibility, but the installation contract requires it. A newly installed
-Harness must ask the user to choose an absolute directory. It must not report
-`ready` if the variable is missing, inherited only through the legacy alias, or
-set to a relative path.
-
-The OS-specific fallback remains available so existing CLI calls do not break.
-It is not evidence that the user selected a storage location. Plugin caches,
-marketplace checkouts, temporary clones, and package directories must never be
-used for editable projects.
-
-When the Harness has an active workspace, recommend
-`<workspace>/blender-vse-projects`. The absence of a workspace, or the choice of
-a directory outside it, is advisory rather than a hard error: explain the
-sandbox and portability trade-offs, obtain explicit confirmation, and then
-authorize the chosen external root. Never relocate existing projects or media
-without a separate request.
+Projects always live in `<workspace>/blender-vse-projects`, where the workspace
+is the folder the MCP host starts the server in. Tool calls pass paths relative
+to that folder. See [Installation](installation.md#where-projects-live).
 
 ## Runtime and execution
 
@@ -32,7 +18,6 @@ without a separate request.
 | `BLENDER_VSE_BLENDER_EXECUTABLE` | `VP_BLENDER_EXECUTABLE` | `BLENDER_EXECUTABLE`, known install paths, then `PATH` | Blender executable |
 | `BLENDER_VSE_EXECUTION` | `VP_BLENDER_EXECUTION` | `live_session` | `live_session` or `headless`; interactive edits still refuse headless |
 | `BLENDER_VSE_STATE_DIR` | — | OS user-data directory | Runtime state root |
-| `BLENDER_VSE_PROJECTS_DIR` | `VP_PROJECTS_DIR` | `<state>/projects` | Default project directory shown in status |
 | `BLENDER_VSE_TMP_DIR` | `VP_TMP_DIR` | `<state>/tmp` | Generated fixed scripts and session logs |
 | `BLENDER_VSE_TEST_MEDIA_DIR` | — | `<state>/test-media` | Optional external test-media location |
 | `BLENDER_VSE_FFMPEG` | `VP_FFMPEG` | `PATH`, then known Windows paths | FFmpeg executable |
@@ -63,17 +48,15 @@ forward its port. See [Security](../SECURITY.md).
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `BLENDER_VSE_ALLOWED_ROOTS` | Effective `BLENDER_VSE_PROJECTS_DIR` | OS path-separator-delimited directories containing projects callable through MCP |
+| `BLENDER_VSE_WORKSPACE` | Server working directory | Workspace folder, for hosts that start MCP servers elsewhere |
 
-The MCP adapter resolves each explicit `.blend` path and rejects it before
-Blender starts if it falls outside every allowed root. Separate roots with `;`
-on Windows and `:` on POSIX systems. See [Local MCP server](mcp.md).
+The MCP adapter resolves each `.blend` path against
+`<workspace>/blender-vse-projects` and rejects it before Blender starts if it
+leaves that folder. See [Local MCP server](mcp.md).
 
 The local plugin forwards the documented Blender VSE variables and basic OS/uv
 runtime paths through the explicit `env_vars` allowlist in `.mcp.json`. It does
-not forward arbitrary host variables. Persist the project-root configuration
-before starting Codex; changing an interactive shell after the plugin launches
-does not update the running server.
+not forward arbitrary host variables.
 
 ## Test-only switch
 

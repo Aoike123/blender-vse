@@ -15,25 +15,16 @@ blender-vse/
 
 当前版本面向本地 Codex 使用。提交公开 ChatGPT 插件需要可供审查的 HTTPS MCP 端点；本地服务器则有意采用 stdio，并且不会开放网络监听端口。
 
-## 用户安装契约
+## 市场条目
 
-支持的用户安装请求如下：
+仓库包含 `.agents/plugins/marketplace.json`。由于插件位于仓库根目录，其中唯一的条目使用基于 Git 的 `url` 来源，因此 Codex 可以像安装其他市场插件一样安装它。大多数用户应改用[一键安装脚本](installation_zh-CN.md)，直接注册 MCP 服务。
 
-```text
-帮我安装这个插件：https://github.com/Aoike123/blender-vse-control
-```
-
-仓库包含 `.agents/plugins/marketplace.json`。由于插件位于仓库根目录，其中唯一的条目使用基于 Git 的 `url` 来源。负责安装的 Agent 会代用户执行插件市场和插件 CLI 操作，验证操作是否成功，并提示用户开始新任务。用户无需了解这些内部操作。
-
-在报告安装完成前，Agent 必须完成[必需的安装后对话](installation_zh-CN.md#必需的安装后对话)：让用户选择一个绝对项目目录，配置 `BLENDER_VSE_PROJECTS_DIR`，验证其实际生效值，然后才能将插件状态报告为 `ready`。
-
-下面的发布 ZIP 和本地市场命令供维护、离线安装和恢复使用，并不是主要的安装方式。
+下面的发布 ZIP 和本地市场命令供维护、离线安装和恢复使用。
 
 ## 前置条件
 
 - Blender 必须安装在与 Codex 相同的计算机上，并与 Codex 共用同一个交互式桌面。
-- 无需预装 Python。负责安装的 Agent 会检查 [`uv`](https://docs.astral.sh/uv/)；如果尚未安装，则先征得许可，再从官方来源安装并完成验证，之后才能启用 MCP。
-- 如果项目位于默认 `BLENDER_VSE_PROJECTS_DIR` 之外，必须持久设置 `BLENDER_VSE_ALLOWED_ROOTS`。
+- `PATH` 上需要有 [`uv`](https://docs.astral.sh/uv/)。无需预装 Python；[一键安装脚本](installation_zh-CN.md)会在缺少 uv 时自动安装。
 
 插件的 `.mcp.json` 会执行以下命令：
 
@@ -92,8 +83,6 @@ python tests/run.py plugin
 
 此外，还应使用当前 Codex 安装附带的 `plugin-creator` `validate_plugin.py` 验证仓库根目录。本地迭代时，请使用 `plugin-creator` 提供的 cachebuster / 重装流程，不要手动追加版本后缀或编辑市场状态。
 
-## 配置项目访问
+## 工程访问
 
-宿主必须在启动插件进程前提供 `BLENDER_VSE_ALLOWED_ROOTS`。在 Windows 上使用 `;` 分隔目录，在 macOS/Linux 上则使用 `:`。如果未设置此变量，则只允许访问实际生效的 `BLENDER_VSE_PROJECTS_DIR`。另请参阅[配置](configuration_zh-CN.md)、[本地 MCP 服务](mcp_zh-CN.md)和[客户端兼容性](clients_zh-CN.md)。
-
-优先使用 `<workspace>/blender-vse-projects`。如果 Codex 当前没有活跃工作区，或用户选择了外部项目或资源目录，应先显示工作区提醒并取得明确确认，再将该目录加入允许根目录。
+工程保存在 `<workspace>/blender-vse-projects` 中，工具调用使用相对于它的路径，无需任何工程配置。另请参阅[配置](configuration_zh-CN.md)和[本地 MCP 服务](mcp_zh-CN.md)。

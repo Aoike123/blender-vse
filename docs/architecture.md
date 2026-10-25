@@ -111,21 +111,16 @@ digests. The stateful eval corpus replays conflict/recovery paths and measures
 active context over 250 synthetic edit cycles without pretending that the core
 library owns the Agent conversation.
 
-## Multi-host distribution
+## Distribution
 
-The repository root serves as a marketplace/plugin for both Codex and Claude
-Code. DSH uses the same canonical Skill through its filesystem provider and a
-single generated Cordis patch. All three launch the same stdio server; client
-files contain no editing implementation.
-
-The MCP command uses uv-managed Python 3.12, so system Python is not an end-user
-dependency and installed source need not be writable. Bootstrapping a missing
-uv installation requires user approval; Blender and FFmpeg remain external
-applications installed through guided steps. A deterministic builder emits the
-offline Codex marketplace archive, while GitHub is the primary cross-Harness
-distribution path. None of these local paths claims that stdio satisfies public
-HTTPS plugin-submission requirements. See
-[multi-host installation guide](installation.md).
+`install.sh` and `install.ps1` install the `blender-vse-mcp` command with
+`uv tool` on uv-managed Python 3.12, so system Python is not an end-user
+dependency. Any MCP host registers that one stdio command. The repository root
+also serves as a Codex and Claude Code marketplace plugin that launches the same
+server. Projects resolve under `<workspace>/blender-vse-projects`, so no install
+step records an absolute path. Blender and FFmpeg remain external applications.
+None of these local paths claims that stdio satisfies public HTTPS
+plugin-submission requirements. See [Installation](installation.md).
 
 ## Checkpoint restore
 

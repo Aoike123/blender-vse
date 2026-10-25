@@ -91,7 +91,7 @@ def test_stdio_transport_discovers_the_same_four_tools(tmp_path: Path) -> None:
         command=sys.executable,
         args=["-m", "blender_vse.mcp.server"],
         env={
-            "BLENDER_VSE_ALLOWED_ROOTS": str(tmp_path),
+            "BLENDER_VSE_WORKSPACE": str(tmp_path),
             "PYTHONPATH": str(ROOT / "src"),
         },
     )

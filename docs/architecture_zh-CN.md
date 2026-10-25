@@ -76,11 +76,9 @@ blender_vse.blender      结果封装与保存验证
 
 `resume.py` 是 Agent 宿主侧的辅助函数，并非对话存储。它把需要保留的交接事实整理成 4 KB 胶囊，保留近期历史，并记录总数和摘要。有状态评估语料会在 250 个合成编辑循环中回放冲突与恢复路径，测量活跃上下文的大小，但不会把 Agent 对话归于核心库管理。
 
-## 多宿主分发
+## 分发
 
-仓库根目录同时为 Codex 和 Claude Code 提供市场清单与插件内容。DSH 通过文件系统提供方复用同一份规范 Skill，以及一份生成的 Cordis 补丁。三种宿主都启动同一个 stdio 服务；客户端文件不包含任何编辑实现。
-
-MCP 命令使用由 uv 管理的 Python 3.12，因此系统 Python 不是最终用户依赖，安装后的源码也无需可写。缺少 uv 时，安装前必须取得用户同意；Blender 和 FFmpeg 仍需按照指南单独安装。确定性构建器生成离线 Codex 市场归档，GitHub 则是跨宿主分发的主要渠道。这些本地方案都不声称 stdio 满足公开插件提交所要求的 HTTPS 接口。见[多宿主安装指南](installation_zh-CN.md)。
+`install.sh` 与 `install.ps1` 通过 `uv tool` 在 uv 托管的 Python 3.12 上安装 `blender-vse-mcp` 命令，因此系统 Python 不是最终用户依赖。任何 MCP 宿主都只需注册这一条 stdio 命令。仓库根目录同时也是 Codex 与 Claude Code 的市场插件，启动的是同一个服务。工程统一解析到 `<workspace>/blender-vse-projects`，安装过程不记录任何绝对路径。Blender 和 FFmpeg 仍需单独安装。这些本地方案都不声称 stdio 满足公开插件提交所要求的 HTTPS 接口。见[安装](installation_zh-CN.md)。
 
 ## 检查点恢复
 

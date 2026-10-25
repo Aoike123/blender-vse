@@ -14,7 +14,8 @@ from blender_vse.mcp.boundary import MCPAdapter
 
 SERVER_NAME = "blender-vse-control"
 SERVER_INSTRUCTIONS = (
-    "Control only explicit .blend paths inside configured local roots. Start with "
+    "Projects live in the workspace blender-vse-projects folder; pass paths "
+    "relative to it, such as demo.blend. Start with "
     "blender_read summary, then use a targeted range/detail read before editing. "
     "Pass its revision, timeline_hash, and observation_id to exactly one patch or "
     "acknowledgement. After stale state or context compaction, discard the token "
@@ -26,7 +27,10 @@ ProjectPath = Annotated[
     Field(
         min_length=1,
         max_length=2048,
-        description="Explicit local .blend path inside BLENDER_VSE_ALLOWED_ROOTS.",
+        description=(
+            ".blend path relative to the workspace blender-vse-projects folder, "
+            "e.g. demo.blend."
+        ),
     ),
 ]
 Token = Annotated[str, Field(min_length=1, max_length=512)]
