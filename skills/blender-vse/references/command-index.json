@@ -2,7 +2,7 @@
   "version": 1,
   "catalog_version": "1.0",
   "description": "Patch operations approved for the blender-vse Skill. Project and revision fields belong to the outer MCP tool call.",
-  "total_commands": 108,
+  "total_commands": 109,
   "policy_exclusions": {
     "acknowledge_revision": "use the dedicated blender_acknowledge tool",
     "apply_patch": "the outer blender_patch tool already owns the transaction",
@@ -46,7 +46,7 @@
         "signature": "(segments = None, srt_path: str | None = None, channel: int = 3, fps: float = 30.0, font_size: float = 48.0, position = (0.5, 0.12), strip_prefix: str = 'Sub_', align: str = 'CENTER', allow_overlap: bool = False)"
       },
       "add_text": {
-        "signature": "(text: str, channel: int = 2, frame_start: int = 1, length: int = 120, font_size: float = 48.0, position = (0.5, 0.5), strip_name: str = '')"
+        "signature": "(text: str, channel: int = 2, frame_start: int = 1, length: int = 120, font_size: float = 48.0, position = (0.5, 0.5), strip_name: str = '', font: str = '')"
       },
       "add_transition": {
         "signature": "(strip_a: str, strip_b: str, transition_type: str = 'CROSS', channel: int = 3, transition_frames: int = 15)"
@@ -350,6 +350,9 @@
       },
       "render_range": {
         "signature": "(output_path: str, start_frame: int, end_frame: int, resolution = None, scale_percent: int = 50, fps: float = 30.0)"
+      },
+      "sample_frame": {
+        "signature": "(frame: int | None = None, grid = (8, 4))"
       }
     },
     "packaging": {

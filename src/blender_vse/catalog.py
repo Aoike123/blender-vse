@@ -178,6 +178,7 @@ OPERATION_FAMILIES: dict[str, tuple[str, ...]] = {
         "render_frame",
         "render_range",
         "generate_contact_sheet",
+        "sample_frame",
     ),
     "revision": (
         "get_revision",

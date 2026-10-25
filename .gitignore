@@ -18,6 +18,7 @@ dist/
 *.blend1
 *.blend2
 projects/
+blender-vse-projects/
 renders/
 checkpoints/
 *.mp4
@@ -35,5 +36,6 @@ uv.lock
 # Editors and operating systems
 .idea/
 .vscode/
+.zcode/
 .DS_Store
 Thumbs.db

@@ -351,6 +351,65 @@ def _norm_path(value: str | Path | None) -> str:
     return os.path.normcase(os.path.abspath(os.fspath(value)))
 
 
+def _x11_window_handles(pid: int | None) -> dict[str, Any]:
+    """Enumerate mapped X11 windows owned by ``pid`` using ``xprop``.
+
+    POSIX desktops have no in-process ``EnumWindows`` equivalent, so native
+    window evidence is collected with the standard ``xprop`` utility.  The
+    result is fail-closed: when X11 evidence is unavailable (no DISPLAY, no
+    ``xprop``, or a Wayland session without XWayland answers) the caller keeps
+    the pre-existing external-fallback behavior instead of trusting an empty
+    list.
+    """
+    if not pid:
+        return {}
+    try:
+        listing = subprocess.run(
+            ["xprop", "-root", "_NET_CLIENT_LIST"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    marker = "window id #"
+    index = listing.find(marker)
+    if index < 0:
+        return {}
+    handles: list[int] = []
+    for token in listing[index + len(marker):].replace(",", " ").split():
+        try:
+            int(token, 16)
+        except ValueError:
+            continue
+        try:
+            owner = subprocess.run(
+                ["xprop", "-id", token, "_NET_WM_PID"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=True,
+            ).stdout
+            state = subprocess.run(
+                ["xprop", "-id", token, "WM_STATE"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=True,
+            ).stdout
+        except (OSError, subprocess.SubprocessError):
+            continue
+        owner_value = owner.rsplit("=", 1)[-1].strip()
+        if not owner_value.isdigit() or int(owner_value) != int(pid):
+            continue
+        # An iconic window exists but is not visible on the desktop.
+        if "window state: Iconic" in state:
+            continue
+        handles.append(int(token, 16))
+    return {"checked": True, "handles": handles}
+
+
 def _visible_window_evidence(pid: int | None) -> dict[str, Any]:
     """Return OS-level evidence that ``pid`` owns a visible desktop window.
 
@@ -369,6 +428,17 @@ def _visible_window_evidence(pid: int | None) -> dict[str, Any]:
             "window_titles": [],
         }
     if os.name != "nt":
+        x11 = _x11_window_handles(pid)
+        if x11:
+            handles = x11["handles"]
+            return {
+                "platform": os.name,
+                "checked": True,
+                "visible": bool(handles),
+                "window_handles": handles,
+                "all_window_handles": handles,
+                "window_titles": [],
+            }
         return {
             "platform": os.name,
             "checked": False,

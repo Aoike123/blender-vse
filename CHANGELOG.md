@@ -6,6 +6,22 @@
 
 - Relicensed the project from AGPL-3.0-only to the MIT License. The vendored
   Blender MCP Bridge keeps its original MIT notice.
+- Fixed the Blender >= 5 sequencer preview drawing TEXT strips with an unset
+  font as scaled, flipped glyph garbage while final renders stayed correct:
+  `add_text` and `add_subtitle_track` now always assign an explicit loadable
+  font, preferring Blender's bundled Inter / Noto Sans CJK fonts (located
+  through Blender's resource paths) and reusing already-loaded fonts, and report
+  `font_fallback_warning` when no candidate loads so preview and render agree.
+- Linux visible-session checks now collect native window evidence for the
+  Blender process through `xprop` on X11, failing closed to the previous
+  behavior when X11 evidence is unavailable.
+- Added `sample_frame`: renders one frame and returns a bounded numeric RGB
+  grid (up to 16x16 cells, rows top to bottom) plus min/max/mean luminance and
+  the scene view transform, so agents verify timeline visuals numerically
+  instead of eyeballing screenshots.
+- `generate_contact_sheet` now steps frames with `scene.frame_set()` instead
+  of assigning `frame_current` directly, keeping the visible preview and
+  depsgraph in sync across its render loop.
 - Documented how to pair Blender VSE Control with a director or
   production-orchestration Skill for end-to-end automation, with explicit
   ownership boundaries for creative planning, source media, timeline execution,

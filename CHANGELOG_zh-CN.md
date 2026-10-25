@@ -6,6 +6,18 @@
 
 - 项目许可证由 AGPL-3.0-only 改为 MIT 许可证；随附的 Blender MCP Bridge 保留原有
   MIT 声明。
+- 修复 Blender 5 及以上版本序列编辑器预览中，未设置字体的 TEXT 条目被绘制成
+  放大翻转的字形碎片而最终渲染却正常的问题：`add_text` 与
+  `add_subtitle_track` 现在必定显式绑定可加载字体（优先通过 Blender 资源路径
+  使用自带的 Inter / Noto Sans CJK，并复用已载入的字体），中文文本自动选择 CJK
+  字体，并在候选全部失败时回执 `font_fallback_warning`，确保预览与渲染一致。
+- Linux 可见会话检查现在通过 `xprop` 在 X11 下收集 Blender 进程的原生窗口
+  证据；无法获取 X11 证据时保持原有行为。
+- 新增 `sample_frame`：渲染单帧并返回有界的数值 RGB 网格（每轴最多 16 格，
+  行序自上而下）、最小/最大/平均亮度及场景视图变换，让 Agent 用数值核验画面
+  而不再依赖截图目测。
+- `generate_contact_sheet` 改用 `scene.frame_set()` 逐帧步进，替代直接赋值
+  `frame_current`，渲染循环期间可见预览与 depsgraph 保持同步。
 - 补充 Blender VSE Control 与导演或制作编排 Skill 的全流程自动化搭配方式，明确创意规划、
   源素材、时间线执行和持久化验证分别由哪一层负责。
 

@@ -100,8 +100,8 @@ _DIRECT_MUTATION_WHITELIST = {
     "create_project", "save_project", "acknowledge_revision", "apply_patch",
     "finalize_checkpoint_restore",
     "render_preview", "render_final", "render_frame", "render_range",
-    "generate_contact_sheet", "save_project_copy", "collect_project_assets",
-    "package_project",
+    "generate_contact_sheet", "sample_frame", "save_project_copy",
+    "collect_project_assets", "package_project",
 }
 
 # Read/write classification comes from the canonical catalog. The restore
@@ -1255,21 +1255,83 @@ _vp_result(id=s.name, type=s.type, channel=s.channel,
 """
 
 
+_ENSURE_FONT = '''
+def _vp_ensure_font(strip, explicit_path, text):
+    # Blender >= 5 renders TEXT strips with font=None correctly in the final
+    # render but draws them in the sequencer preview as scaled/flipped glyph
+    # garbage. Always assign an explicit, loadable font so preview and render
+    # agree. Returns (font_name_or_None, fallback_warning).
+    import bpy, os
+    if explicit_path:
+        strip.font = bpy.data.fonts.load(explicit_path, check_existing=True)
+        return strip.font.name, False
+    if strip.font is not None and getattr(strip.font, "filepath", ""):
+        return strip.font.name, False
+    _cjk = any(0x2E80 <= ord(c) <= 0x9FFF or 0xF900 <= ord(c) <= 0xFAFF
+               or 0x3040 <= ord(c) <= 0x30FF or 0xAC00 <= ord(c) <= 0xD7AF
+               or 0x20000 <= ord(c) <= 0x2FA1F for c in text)
+    # Bundled fonts live under the versioned resource dir (e.g.
+    # <install>/5.2/datafiles/fonts), not next to the binary; ask Blender.
+    _dirs = []
+    try:
+        _res = bpy.utils.system_resource('DATAFILES', path="fonts")
+        if _res:
+            _dirs.append(_res)
+    except Exception:
+        pass
+    _bin = os.path.dirname(bpy.app.binary_path)
+    _ver = "%d.%d" % bpy.app.version[:2]
+    _dirs += [os.path.join(_bin, _ver, "datafiles", "fonts"),
+              os.path.join(_bin, "datafiles", "fonts"),
+              "/usr/share/blender/datafiles/fonts"]
+    # Blender >= 4 ships .woff2 UI fonts; older releases shipped bfont.ttf.
+    if _cjk:
+        _names = ["Noto Sans CJK Regular.woff2", "NotoSansCJK-Regular.ttc",
+                  "NotoSansCJKsc-Regular.otf", "SourceHanSansSC-Regular.otf"]
+        _abs = ["/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+                "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+                "C:/Windows/Fonts/msyh.ttc",
+                "/System/Library/Fonts/PingFang.ttc"]
+    else:
+        _names = ["Inter.woff2", "DejaVuSans.woff2", "bfont.ttf"]
+        _abs = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/TTF/DejaVuSans.ttf",
+                "C:/Windows/Fonts/arial.ttf",
+                "/System/Library/Fonts/Supplemental/Arial.ttf"]
+    for _p in [os.path.join(_d, _n) for _d in _dirs for _n in _names] + _abs:
+        try:
+            if not os.path.isfile(_p):
+                continue
+            strip.font = bpy.data.fonts.load(_p, check_existing=True)
+            return strip.font.name, False
+        except Exception:
+            continue
+    return None, True
+'''
+
+
 @_op("add_text", read_only=False)
 def add_text(project: str, text: str, channel: int = 2, frame_start: int = 1,
              length: int = 120, font_size: float = 48.0, position=(0.5, 0.5),
-             strip_name: str = "", **kw) -> str:
+             strip_name: str = "", font: str = "", **kw) -> str:
     _validate_project(project)
     name = strip_name or f"Text_{frame_start}"
+    font_literal = (
+        _j(str(Path(font).expanduser().resolve())) if str(font).strip() else "None"
+    )
     return f"""
+{_ENSURE_FONT}
 se = bpy.context.scene.sequence_editor
 s = se.strips.new_effect(name={_q(name)}, type='TEXT',
                          channel={int(channel)}, frame_start={int(frame_start)}, length={int(length)})
 s.text = {_j(str(text))}
 s.font_size = {float(font_size)}
 s.location = {_j(tuple(float(x) for x in position))}
+_font, _font_warn = _vp_ensure_font(s, {font_literal}, s.text)
 _vp_result(id=s.name, type=s.type, channel=s.channel,
-           frame_start=int(s.frame_final_start), frame_end=int(s.frame_final_end))
+           frame_start=int(s.frame_final_start), frame_end=int(s.frame_final_end),
+           font=_font, font_fallback_warning=_font_warn)
 """
 
 
@@ -1381,10 +1443,12 @@ if _conflicts:
         " (pass allow_overlap=True to force)")
 
 # ---- build text strips ----
+{_ENSURE_FONT}
 _pos = {_j(tuple(float(x) for x in position))}
 _font_size = {float(font_size)}
 _align = {_q(align)}
 _created = []
+_font_warn = False
 for _i, _seg in enumerate(_segs):
     _start = int(round(_seg["start_seconds"] * _fps)) + 1
     _dur = int(round(max(0.1, _seg["end_seconds"] - _seg["start_seconds"]) * _fps))
@@ -1398,10 +1462,13 @@ for _i, _seg in enumerate(_segs):
         _s.alignment_x = _align
     except Exception:
         pass
+    _f, _w = _vp_ensure_font(_s, None, _s.text)
+    _font_warn = _font_warn or _w
     _created.append({{"id": _s.name, "text": _s.text,
                      "frame_start": int(_s.frame_final_start),
                      "frame_end": int(_s.frame_final_end)}})
-_vp_result(created=len(_created), channel=_channel, prefix=_prefix, strips=_created)
+_vp_result(created=len(_created), channel=_channel, prefix=_prefix, strips=_created,
+           font_fallback_warning=_font_warn)
 """
 
 
@@ -6103,7 +6170,7 @@ try:
     _files = []
     for _i, _f in enumerate(_frames):
         _tmp = os.path.join(os.path.dirname(_out), f"_cs_{{_i:02d}}.png")
-        scene.frame_current = int(_f)
+        scene.frame_set(int(_f))
         scene.render.filepath = _tmp
         bpy.ops.render.render(write_still=True)
         _files.append(_tmp)
@@ -6140,6 +6207,99 @@ finally:
     scene.render.filepath = _orig_fp
     scene.frame_current = _orig_cur
 _vp_result(output_path=_out, frames=len(_frames), exists=os.path.isfile(_out))
+"""
+
+
+@_op("sample_frame", read_only=False)
+def sample_frame(project: str, frame: int | None = None, grid=(8, 4), **kw) -> str:
+    """Render one frame and return a bounded numeric color grid.
+
+    Agents verify timeline visuals numerically instead of eyeballing
+    screenshots: each cell is the mean RGB (0-255) of the rendered frame as the
+    final render writes it (scene view transform applied, reported alongside),
+    plus min/max/mean luminance over the grid. Rows run top to bottom and
+    columns left to right. The frame goes to a private temp PNG that is always
+    deleted, and the scene is restored (frame, use_sequencer, output settings).
+    """
+    _validate_project(project)
+    try:
+        gx, gy = int(grid[0]), int(grid[1])
+    except (TypeError, ValueError, IndexError):
+        raise BlenderRunnerError("invalid_args", "grid must be [x, y] integers")
+    if not (1 <= gx <= 16 and 1 <= gy <= 16):
+        raise BlenderRunnerError("invalid_args", "grid cells must be 1..16 per axis")
+    if frame is not None:
+        try:
+            frame = int(frame)
+        except (TypeError, ValueError):
+            raise BlenderRunnerError("invalid_args", "frame must be an integer")
+    return f"""
+import bpy, os, tempfile
+import numpy as np
+scene = bpy.context.scene
+_f = {_jv(frame)}
+if _f is None:
+    _f = scene.frame_current
+_gx, _gy = {int(gx)}, {int(gy)}
+_settings = scene.render.image_settings
+_orig_frame = scene.frame_current
+_orig_seq = scene.render.use_sequencer
+_orig_fp = scene.render.filepath
+_orig_fmt = _settings.file_format
+# media_type only exists on Blender >= 5; 4.x selects PNG via file_format alone.
+_has_mt = hasattr(_settings, "media_type")
+_orig_mt = _settings.media_type if _has_mt else None
+_fd, _tmp = tempfile.mkstemp(prefix="vse_sample_", suffix=".png")
+os.close(_fd)
+_img = None
+scene.render.use_sequencer = True
+try:
+    scene.frame_set(int(_f))
+    if _has_mt:
+        _settings.media_type = 'IMAGE'
+    _settings.file_format = 'PNG'
+    scene.render.filepath = _tmp
+    bpy.ops.render.render(write_still=True)
+    _img = bpy.data.images.load(_tmp, check_existing=False)
+    _w, _h = _img.size
+    if _w == 0 or _h == 0:
+        raise RuntimeError("render result unavailable")
+    # One bulk copy; per-index access to Image.pixels is O(width*height) each.
+    _buf = np.empty(_w * _h * 4, dtype=np.float32)
+    _img.pixels.foreach_get(_buf)
+    # Blender stores rows bottom-up; flip so cells[0] is the top of the frame.
+    _rgb = _buf.reshape(_h, _w, 4)[::-1, :, :3]
+    _xs = [int(round(_i * _w / _gx)) for _i in range(_gx + 1)]
+    _ys = [int(round(_i * _h / _gy)) for _i in range(_gy + 1)]
+    _rows = []
+    for _ry in range(_gy):
+        _row = []
+        for _rx in range(_gx):
+            _cell = _rgb[_ys[_ry]:max(_ys[_ry + 1], _ys[_ry] + 1),
+                         _xs[_rx]:max(_xs[_rx + 1], _xs[_rx] + 1)]
+            _row.append([int(round(float(_v) * 255)) for _v in _cell.mean(axis=(0, 1))])
+        _rows.append(_row)
+    _lums = [round(0.2126 * _c[0] + 0.7152 * _c[1] + 0.0722 * _c[2], 1)
+             for _row in _rows for _c in _row]
+    _view = scene.view_settings.view_transform
+    _look = scene.view_settings.look
+finally:
+    if _img is not None:
+        bpy.data.images.remove(_img)
+    scene.render.use_sequencer = _orig_seq
+    scene.render.filepath = _orig_fp
+    if _has_mt:
+        _settings.media_type = _orig_mt
+    _settings.file_format = _orig_fmt
+    try:
+        os.remove(_tmp)
+    except OSError:
+        pass
+    scene.frame_set(int(_orig_frame))
+_vp_result(frame=int(_f), grid=[_gx, _gy], size=[int(_w), int(_h)], cells=_rows,
+           view_transform=_view, look=_look,
+           luminance={{"min": min(_lums), "max": max(_lums),
+                      "mean": round(sum(_lums) / len(_lums), 1)}})
 """
 
 
