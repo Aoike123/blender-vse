@@ -58,6 +58,39 @@ def test_contact_sheet_steps_frames_via_frame_set() -> None:
     assert "scene.frame_current = int(_f)" not in script
 
 
+def test_create_project_uses_standard_view_transform() -> None:
+    script = vse_ops.create_project(project=PROJECT)
+    assert "scene.view_settings.view_transform = 'Standard'" in script
+    assert "scene.view_settings.look = 'None'" in script
+
+
+def test_frame_captures_scale_through_percentage_not_resolution() -> None:
+    # Overriding resolution_x/y keeps text at scene-pixel size, so captures
+    # showed enlarged overlays; the percentage scales the whole composition.
+    for script in (
+        vse_ops.render_frame(project=PROJECT, output_path="/tmp/f.png", frame=0),
+        vse_ops.generate_contact_sheet(
+            project=PROJECT, output_path="/tmp/sheet.png", frames=[1, 2]),
+    ):
+        assert "resolution_percentage = _vp_fit_percentage(" in script
+        assert "scene.render.resolution_x =" not in script
+        assert "scene.render.resolution_y =" not in script
+
+
+def test_render_frame_honours_frame_zero() -> None:
+    script = vse_ops.render_frame(project=PROJECT, output_path="/tmp/f.png", frame=0)
+    assert "_f = 0\nif _f is None:" in script
+
+
+def test_contact_sheet_composes_cells_upright_in_bulk() -> None:
+    script = vse_ops.generate_contact_sheet(
+        project=PROJECT, output_path="/tmp/sheet.png", frames=[1, 2])
+    assert "_img.pixels.foreach_get(_buf)" in script
+    assert "= _cell[::-1]" in script
+    assert "_grid.pixels.foreach_set(_grid_px[::-1].ravel())" in script
+    assert "for _x in range" not in script
+
+
 def test_sample_frame_builds_bounded_grid_script() -> None:
     script = vse_ops.sample_frame(project=PROJECT, frame=42, grid=(8, 4))
     assert "use_sequencer = True" in script

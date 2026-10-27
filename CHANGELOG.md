@@ -2,6 +2,29 @@
 
 [Chinese version](CHANGELOG_zh-CN.md)
 
+## Unreleased
+
+- New projects open in Blender's native Video Editing workspace (file browser,
+  preview, and properties above a full-width sequencer), appended from the
+  Video Editing app template, and drop the factory 3D workspace tabs. Before,
+  the workspace was a copy of Layout with an outliner, object properties, a
+  duplicate playback timeline, and one combined sequencer/preview area.
+- Opening a project whose Video Editing workspace has no separate preview and
+  timeline replaces that workspace with the native one; other workspaces stay.
+- The workspace file browser opens on the project's workspace folder (the one
+  holding `blender-vse-projects`) when a project is created, opened, or laid
+  out with `configure_vse_layout`; a browser already inside that folder stays
+  where it is. `configure_vse_layout` no longer looks for an `assets` folder.
+- New projects use the Standard view transform instead of the factory AgX,
+  which tone-mapped every strip, so captures and exports keep source colors.
+- `render_frame` and `generate_contact_sheet` scale captures through the
+  render percentage instead of overriding the resolution, so text and other
+  overlays keep their real size and position (they were enlarged before, up to
+  6x in contact sheets). Contact sheet cells are no longer upside down, and
+  `render_frame` with `frame=0` renders frame 0 instead of the playhead.
+- `configure_vse_layout` keeps areas that already hold the file browser and
+  properties instead of picking them by position.
+
 ## 0.2.0 - 2026-10-25
 
 - The MCP server now carries the `blender-vse` Skill: its core rules are the

@@ -30,6 +30,7 @@ from .presentation_contract import (
     VSE_LAYOUT_PROFILE_KEY,
     VSE_LAYOUT_PROFILE_VERSION,
     binding_helpers_script,
+    vse_workspace_script,
 )
 from .runner import BlenderResult, BlenderRunner, BlenderRunnerError
 
@@ -508,7 +509,7 @@ def create_project(project: str, resolution=(1920, 1080), fps: float = 30.0,
     p = Path(project)
     p.parent.mkdir(parents=True, exist_ok=True)
     scene_name = scene_name or EDIT_SCENE_NAME
-    script = binding_helpers_script() + f"""
+    script = binding_helpers_script() + vse_workspace_script() + f"""
 # Source of truth: named edit scene owns the VSE.
 _edit_name = {_j(scene_name)}
 _edit_scene = bpy.data.scenes.get(_edit_name)
@@ -547,47 +548,28 @@ for _fmt in ('FFMPEG', 'PNG'):
 scene.render.image_settings.media_type = 'VIDEO'
 scene.render.ffmpeg.format = 'MPEG4'
 scene.render.ffmpeg.codec = 'H264'
-# Persist a "Video Editing" workspace so double-clicking the .blend opens
-# straight into the VSE timeline (Blender 5.1 factory ships no such workspace).
-_ws_name = 'Video Editing'
-if _ws_name not in bpy.data.workspaces:
-    try:
-        bpy.ops.workspace.duplicate()
-        _ws = bpy.context.workspace
-        _ws.name = _ws_name
-        for _scr in _ws.screens:
-            for _a in _scr.areas:
-                try:
-                    with bpy.context.temp_override(workspace=_ws, screen=_scr, area=_a):
-                        _a.type = 'SEQUENCE_EDITOR'
-                except Exception:
-                    pass
-                break
-            break
-    except Exception:
-        pass
+# The factory AgX view transform tone-maps every strip (pure red renders as
+# orange); Standard passes footage, titles, and colors through unchanged.
+scene.view_settings.view_transform = 'Standard'
+scene.view_settings.look = 'None'
+# Persist Blender's native Video Editing workspace so double-clicking the
+# .blend opens straight into an editing layout (factory startup ships none).
+_ws_name = _vp_workspace_name
+_vp_workspace_reports = []
 try:
     _vp_profile_versions = []
     for _w in bpy.data.window_managers:
         for _win in _w.windows:
-            if _ws_name in bpy.data.workspaces:
-                _win.workspace = bpy.data.workspaces[_ws_name]
+            _vp_workspace_reports.append(_vp_install_vse_workspace(
+                _win, _vp_prune=True, _vp_blend={_j(str(p))}))
             _vp_bind_vse_window(_win, scene)
-            _vp_screen = _win.screen
-            _vp_areas = list(_vp_screen.areas) if _vp_screen else []
-            _vp_vse_areas = [a for a in _vp_areas if a.type == 'SEQUENCE_EDITOR']
-            _vp_utility_areas = [a for a in _vp_areas if a.type != 'SEQUENCE_EDITOR']
-            _vp_profile_valid = len(_vp_vse_areas) >= 2 and len(_vp_utility_areas) >= 2
-            if _vp_profile_valid:
-                _vp_vse_areas.sort(key=lambda a: int(getattr(a, 'y', 0)), reverse=True)
-                _vp_vse_areas[0].spaces.active.view_type = 'PREVIEW'
-                _vp_vse_areas[-1].spaces.active.view_type = 'SEQUENCER'
-                _win.workspace[{_j(VSE_LAYOUT_PROFILE_KEY)}] = {VSE_LAYOUT_PROFILE_VERSION}
+            # The window switches workspace on Blender's next event loop.
+            _vp_ws = bpy.data.workspaces.get(_ws_name)
             _vp_profile_versions.append(
-                int(_win.workspace.get({_j(VSE_LAYOUT_PROFILE_KEY)}, 0) or 0)
-                if _win.workspace else 0)
-except Exception:
+                int(_vp_ws.get({_j(VSE_LAYOUT_PROFILE_KEY)}, 0) or 0) if _vp_ws else 0)
+except Exception as _vp_exc:
     _vp_profile_versions = []
+    _vp_workspace_reports.append({{"error": str(_vp_exc)}})
 _vp_windows = [
     _vp_vse_binding_proof(_win, scene)
     for _wm in bpy.data.window_managers for _win in _wm.windows
@@ -600,8 +582,9 @@ scene[{_j(TIMELINE_HASH_KEY)}] = _vp_init_hash
 _vp_result(project={_j(str(p))}, scene=scene.name, fps=scene.render.fps,
            resolution=[scene.render.resolution_x, scene.render.resolution_y],
            workspace=_ws_name, revision=1,
+           view_transform=scene.view_settings.view_transform,
            layout_profile_version=(max(_vp_profile_versions) if _vp_profile_versions else 0),
-           binding=_vp_windows)
+           workspace_setup=_vp_workspace_reports, binding=_vp_windows)
 """
     return script
 
@@ -3280,17 +3263,21 @@ def configure_vse_layout(project: str, timeline_height_ratio: float = 0.34,
     """Persist the preferred four-pane editorial workspace in the open GUI.
 
     The operation intentionally edits workspace/screen state only; timeline
-    content remains untouched. It requires two existing VSE areas, which the
-    standard Video Editing workspace already supplies.
+    content remains untouched. A missing or unusable Video Editing workspace
+    is first replaced by Blender's native one, which supplies the two VSE
+    areas and the utility areas this profile rearranges.
     """
     _validate_project(project)
     ratio = max(0.20, min(0.50, float(timeline_height_ratio)))
-    return binding_helpers_script() + f"""
+    return binding_helpers_script() + vse_workspace_script() + f"""
 _configured = []
 _errors = []
 _layout_scene = _vp_resolve_edit_scene({_j(EDIT_SCENE_NAME)}, bpy.context.scene)
 for _wm in bpy.data.window_managers:
     for _window in _wm.windows:
+        _vp_setup = _vp_install_vse_workspace(_window)
+        if _vp_setup.get("error"):
+            _errors.append(_vp_setup["error"])
         _vp_bind_vse_window(_window, _layout_scene)
         _screen = _window.screen
         if _screen is None:
@@ -3343,31 +3330,30 @@ for _wm in bpy.data.window_managers:
         if len(_utility_areas) < 2:
             _errors.append("workspace needs two right-side utility areas")
             continue
-        _rightmost = sorted(
-            _utility_areas,
-            key=lambda a: int(getattr(a, "x", 0)) + int(getattr(a, "width", 0)),
-            reverse=True,
-        )[:2]
-        _rightmost.sort(key=lambda a: int(getattr(a, "y", 0)), reverse=True)
-        _file_area = _rightmost[0]
-        _properties_area = _rightmost[-1]
+        # Keep areas that already hold the right editor; the native workspace
+        # puts the file browser and properties side by side on one row, where
+        # a position-only pick would swap them.
+        _file_area = next((a for a in _utility_areas if a.type == "FILE_BROWSER"), None)
+        _properties_area = next(
+            (a for a in _utility_areas if a.type == "PROPERTIES" and a != _file_area), None)
+        if _file_area is None or _properties_area is None:
+            _rightmost = sorted(
+                _utility_areas,
+                key=lambda a: int(getattr(a, "x", 0)) + int(getattr(a, "width", 0)),
+                reverse=True,
+            )[:2]
+            _rightmost.sort(key=lambda a: int(getattr(a, "y", 0)), reverse=True)
+            _file_area = _rightmost[0]
+            _properties_area = _rightmost[-1]
         _file_area.type = "FILE_BROWSER"
         _file_space = _file_area.spaces.active
         if hasattr(_file_space, "browse_mode"):
             _file_space.browse_mode = "FILES"
-        _blend_dir = os.path.dirname(bpy.data.filepath)
-        _project_dir = (
-            os.path.dirname(_blend_dir)
-            if os.path.basename(_blend_dir).lower() == "renders"
-            else _blend_dir
-        )
-        _asset_dir = os.path.join(_project_dir, "assets")
-        _browse_dir = _asset_dir if os.path.isdir(_asset_dir) else _project_dir
         _file_params = getattr(_file_space, "params", None)
-        if _file_params is not None and _browse_dir:
-            _file_params.directory = os.fsencode(_browse_dir)
-            if hasattr(_file_params, "display_type"):
-                _file_params.display_type = "THUMBNAIL"
+        if _file_params is not None and hasattr(_file_params, "display_type"):
+            _file_params.display_type = "THUMBNAIL"
+        _vp_point_file_browsers(next(
+            (_ws for _ws in bpy.data.workspaces if _screen in _ws.screens[:]), None))
         _properties_area.type = "PROPERTIES"
 
         _window.workspace[{_j(VSE_LAYOUT_PROFILE_KEY)}] = {VSE_LAYOUT_PROFILE_VERSION}
@@ -3377,10 +3363,11 @@ for _wm in bpy.data.window_managers:
         _configured.append({{
             "workspace": _window.workspace.name,
             "scene": _window.scene.name,
-            "top_left": "PREVIEW",
-            "bottom_left": "SEQUENCER",
-            "top_right": "FILE_BROWSER",
-            "bottom_right": "PROPERTIES",
+            "preview": "PREVIEW",
+            "timeline": "SEQUENCER",
+            "file_browser": "FILE_BROWSER",
+            "properties": "PROPERTIES",
+            "workspace_setup": _vp_setup,
             # Area geometry refreshes on Blender's next UI event, so report the
             # requested ratio and pixel move instead of a stale immediate read.
             "timeline_height_ratio_requested": {ratio},
@@ -6073,27 +6060,43 @@ _vp_result(roles=_roles)
 # ---------------------------------------------------------------------------
 
 
+_FIT_PERCENTAGE = '''
+def _vp_fit_percentage(_scene, _max_w, _max_h):
+    # Text size, strip offsets, and transforms are in scene pixels, so a
+    # smaller capture must scale the whole canvas through the percentage;
+    # overriding resolution_x/y would enlarge and shift overlays instead.
+    _sx = max(1, int(_scene.render.resolution_x))
+    _sy = max(1, int(_scene.render.resolution_y))
+    return max(1, int(min(_max_w / _sx, _max_h / _sy) * 100))
+'''
+
+
 @_op("render_frame", read_only=False)
 def render_frame(project: str, output_path: str, frame: int | None = None,
                  resolution=(1280, 720), **kw) -> str:
-    """Render a single frame to PNG (e.g. for AI visual inspection)."""
+    """Render a single frame to PNG (e.g. for AI visual inspection).
+
+    ``resolution`` bounds the output; the frame keeps the scene's aspect and
+    composition.
+    """
     _validate_project(project)
     return f"""
 import os
+{_FIT_PERCENTAGE}
 scene = bpy.context.scene
-_f = {_jv(frame)} or scene.frame_current
+_f = {_jv(frame)}
+if _f is None:
+    _f = scene.frame_current
 _out = {_j(str(Path(output_path).expanduser().resolve()))}
 os.makedirs(os.path.dirname(_out), exist_ok=True)
-_orig_res = [scene.render.resolution_x, scene.render.resolution_y]
 _orig_pct = scene.render.resolution_percentage
 _orig_mt = scene.render.image_settings.media_type
 _orig_fmt = scene.render.image_settings.file_format
 _orig_fp = scene.render.filepath
 _orig_cur = scene.frame_current
 try:
-    scene.render.resolution_x = {int(resolution[0])}
-    scene.render.resolution_y = {int(resolution[1])}
-    scene.render.resolution_percentage = 100
+    scene.render.resolution_percentage = _vp_fit_percentage(
+        scene, {int(resolution[0])}, {int(resolution[1])})
     # Blender 5.1: file_format enum is gated by media_type (IMAGE vs VIDEO);
     # media_type enum itself differs headless vs GUI — guard both.
     try:
@@ -6106,17 +6109,15 @@ try:
             break
         except Exception:
             continue
-    scene.frame_current = _f
+    scene.frame_set(int(_f))
     scene.render.filepath = _out
     bpy.ops.render.render(write_still=True)
 finally:
-    scene.render.resolution_x = _orig_res[0]
-    scene.render.resolution_y = _orig_res[1]
     scene.render.resolution_percentage = _orig_pct
     scene.render.image_settings.media_type = _orig_mt
     scene.render.image_settings.file_format = _orig_fmt
     scene.render.filepath = _orig_fp
-    scene.frame_current = _orig_cur
+    scene.frame_set(int(_orig_cur))
 _vp_result(output_path=_out, frame=_f, exists=os.path.isfile(_out))
 """
 
@@ -6135,28 +6136,30 @@ def render_range(project: str, output_path: str, start_frame: int, end_frame: in
 @_op("generate_contact_sheet", read_only=False)
 def generate_contact_sheet(project: str, output_path: str, frames: list | None = None,
                            cols: int = 4, **kw) -> str:
-    """Render a grid contact sheet of selected frames to a single PNG."""
+    """Render a grid contact sheet of selected frames to a single PNG.
+
+    Each cell fits 320x180 at the scene's aspect and composition; cells run
+    left to right, top to bottom in ``frames`` order.
+    """
     _validate_project(project)
     if not frames:
         raise BlenderRunnerError("invalid_args", "generate_contact_sheet needs 'frames' list")
     return f"""
 import os
+import numpy as np
+{_FIT_PERCENTAGE}
 scene = bpy.context.scene
 _frames = {_py(frames)}
 _cols = {int(cols)}
 _out = {_j(str(Path(output_path).expanduser().resolve()))}
 os.makedirs(os.path.dirname(_out), exist_ok=True)
-_w, _h = 320, 180
-_orig = [scene.render.resolution_x, scene.render.resolution_y]
 _orig_pct = scene.render.resolution_percentage
 _orig_mt = scene.render.image_settings.media_type
 _orig_fmt = scene.render.image_settings.file_format
 _orig_fp = scene.render.filepath
 _orig_cur = scene.frame_current
 try:
-    scene.render.resolution_x = _w
-    scene.render.resolution_y = _h
-    scene.render.resolution_percentage = 100
+    scene.render.resolution_percentage = _vp_fit_percentage(scene, 320, 180)
     try:
         scene.render.image_settings.media_type = 'IMAGE'
     except Exception:
@@ -6167,45 +6170,39 @@ try:
             break
         except Exception:
             continue
-    _files = []
+    _cells = []
     for _i, _f in enumerate(_frames):
         _tmp = os.path.join(os.path.dirname(_out), f"_cs_{{_i:02d}}.png")
         scene.frame_set(int(_f))
         scene.render.filepath = _tmp
         bpy.ops.render.render(write_still=True)
-        _files.append(_tmp)
-    # compose grid
-    import struct
-    _rows = (len(_files) + _cols - 1) // _cols
-    _grid_w, _grid_h = _cols * _w, _rows * _h
-    _grid = bpy.data.images.new("contact_sheet", width=_grid_w, height=_grid_h, alpha=False)
-    # blit via pixel assignment (simple, deterministic)
-    _px = [0.0] * (_grid_w * _grid_h * 4)
-    for _i, _fp in enumerate(_files):
-        _img = bpy.data.images.load(_fp)
-        _r = _i // _cols
-        _c = _i % _cols
-        _src = list(_img.pixels)
-        for _y in range(_h):
-            for _x in range(_w):
-                _sx = (_y * _w + _x) * 4
-                _dx = ((_grid_h - 1 - (_r * _h + _y)) * _grid_w + (_c * _w + _x)) * 4
-                _px[_dx:_dx+4] = _src[_sx:_sx+4]
+        _img = bpy.data.images.load(_tmp, check_existing=False)
+        _w, _h = _img.size
+        _buf = np.empty(_w * _h * 4, dtype=np.float32)
+        _img.pixels.foreach_get(_buf)
+        _cells.append(_buf.reshape(_h, _w, 4))
         bpy.data.images.remove(_img)
-        os.remove(_fp)
-    _grid.pixels = _px
+        os.remove(_tmp)
+    # Compose top-down, then flip once: Blender image rows run bottom-up.
+    _h, _w = _cells[0].shape[:2]
+    _rows = (len(_cells) + _cols - 1) // _cols
+    _grid_px = np.zeros((_rows * _h, _cols * _w, 4), dtype=np.float32)
+    _grid_px[..., 3] = 1.0
+    for _i, _cell in enumerate(_cells):
+        _r, _c = divmod(_i, _cols)
+        _grid_px[_r * _h:(_r + 1) * _h, _c * _w:(_c + 1) * _w] = _cell[::-1]
+    _grid = bpy.data.images.new("contact_sheet", width=_cols * _w, height=_rows * _h, alpha=False)
+    _grid.pixels.foreach_set(_grid_px[::-1].ravel())
     _grid.filepath_raw = _out
     _grid.file_format = 'PNG'
     _grid.save()
     bpy.data.images.remove(_grid)
 finally:
-    scene.render.resolution_x = _orig[0]
-    scene.render.resolution_y = _orig[1]
     scene.render.resolution_percentage = _orig_pct
     scene.render.image_settings.media_type = _orig_mt
     scene.render.image_settings.file_format = _orig_fmt
     scene.render.filepath = _orig_fp
-    scene.frame_current = _orig_cur
+    scene.frame_set(int(_orig_cur))
 _vp_result(output_path=_out, frames=len(_frames), exists=os.path.isfile(_out))
 """
 

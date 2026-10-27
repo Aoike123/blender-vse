@@ -41,6 +41,7 @@ from .presentation_contract import (
     VSE_LAYOUT_PROFILE_KEY,
     VSE_LAYOUT_PROFILE_VERSION,
     binding_helpers_script,
+    vse_workspace_script,
 )
 
 def _setting(primary: str, legacy: str, default: str) -> str:
@@ -93,6 +94,7 @@ _TRANSIENT_DISCOVERY_CODES = {
     "gui_not_visible",
     "gui_not_stable",
     "vse_not_visible",
+    "vse_workspace_switching",
     "vse_content_not_framed",
 }
 
@@ -643,6 +645,7 @@ def _activate_vse_workspace(info: dict[str, Any]) -> dict[str, Any]:
     """
     code = (
         binding_helpers_script()
+        + vse_workspace_script()
         + f"_vp_layout_profile_key = {json.dumps(VSE_LAYOUT_PROFILE_KEY)}\n"
         + f"_vp_layout_profile_expected = {VSE_LAYOUT_PROFILE_VERSION}\n"
         + r'''
@@ -673,18 +676,7 @@ if len(_windows) > 1:
 elif _window is None:
     print("VP_VSE:" + json.dumps({"ready": False, "reason": "no_window"}))
 else:
-    _target = bpy.data.workspaces.get("Video Editing")
-    _workspace_created = False
-    if _target is None:
-        try:
-            bpy.ops.workspace.duplicate()
-            _target = _window.workspace
-            _target.name = "Video Editing"
-            _workspace_created = True
-        except Exception:
-            _target = None
-    if _target is not None and _window.workspace != _target:
-        _window.workspace = _target
+    _workspace_setup = _vp_install_vse_workspace(_window)
     # The .blend may persist another scene on the window even though the named
     # edit scene owns the strips. Prefer the contract scene, then the populated
     # current scene, then the most populated scene in the project.
@@ -699,20 +691,12 @@ else:
 
     _screen = _window.screen
     _areas = list(_screen.areas) if _screen else []
-    # Session readiness performs the smallest safe repair only: bind the edit
-    # scene, frame content, and fit the preview.  It never rewrites a healthy
-    # user's pane arrangement.  The versioned four-pane profile is applied by
-    # create_project/configure_vse_layout and persisted explicitly.
-    if _workspace_created and not any(a.type == "SEQUENCE_EDITOR" for a in _areas):
-        _primary = max(
-            _areas,
-            key=lambda _a: int(getattr(_a, "width", 0)) * int(getattr(_a, "height", 0)),
-            default=None,
-        )
-        if _primary is not None:
-            _primary.type = "SEQUENCE_EDITOR"
-            _primary.spaces.active.view_type = "SEQUENCER_PREVIEW"
-            _areas = list(_screen.areas)
+    # Session readiness performs the smallest safe repair only: install the
+    # native workspace when it is missing or shows no separate preview and
+    # timeline, bind the edit scene, frame content, and fit the preview.  It
+    # never rewrites a usable user's pane arrangement.  The versioned
+    # four-pane profile is applied by configure_vse_layout and persisted
+    # explicitly.
     _seq = getattr(_scene, "sequence_editor", None)
     _strips = list(_seq.strips) if _seq is not None else []
     _visual_types = {"MOVIE", "IMAGE", "TEXT", "COLOR", "SCENE", "META", "ADJUSTMENT"}
@@ -864,8 +848,15 @@ else:
         and _current_frame_ready
         and _media_ready
     )
+    # Blender applies a window's workspace change on its next event loop, so
+    # the areas framed above still belong to the previous screen.
+    _workspace_switching = (
+        _window.workspace is None or _window.workspace.name != _vp_workspace_name)
+    _content_ready = _content_ready and not _workspace_switching
     _code = None
-    if not _binding.get("sequencer_scene"):
+    if _workspace_switching:
+        _code = "vse_workspace_switching"
+    elif not _binding.get("sequencer_scene"):
         _code = "vse_scene_unbound"
     elif not _binding.get("scene_binding_match"):
         _code = "vse_scene_mismatch"
@@ -896,6 +887,7 @@ else:
         "missing_current_media": _missing_current_media,
         "content_display_ready": _content_ready,
         "ui_errors": _ui_errors,
+        "workspace_setup": _workspace_setup,
         "layout_profile_version": int(
             _window.workspace.get(_vp_layout_profile_key, 0) or 0
         ) if _window.workspace else 0,

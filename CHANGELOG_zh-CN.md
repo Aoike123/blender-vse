@@ -2,6 +2,22 @@
 
 [English version](CHANGELOG.md)
 
+## 未发布
+
+- 新建工程改为打开 Blender 原生的 Video Editing 工作区（上方为文件浏览器、预览和属性，下方为
+  通栏序列编辑器），该工作区从 Video Editing 应用模板追加，并移除出厂的 3D 工作区标签页。此前
+  工作区是 Layout 的副本，带有大纲视图、物体属性、重复的播放时间线，以及一个合并的序列/预览区域。
+- 打开 Video Editing 工作区缺少独立预览和时间线的工程时，会用原生工作区替换它；其他工作区保留。
+- 新建、打开工程或执行 `configure_vse_layout` 时，工作区的文件浏览器会打开工程所在的工作文件夹
+  （包含 `blender-vse-projects` 的那个文件夹）；已在该文件夹内的浏览器保持原位。
+  `configure_vse_layout` 不再查找 `assets` 文件夹。
+- 新建工程使用 Standard 色彩变换，取代出厂的 AgX（它会对所有片段做色调映射），截图和导出保持
+  素材原色。
+- `render_frame` 和 `generate_contact_sheet` 改为通过渲染百分比缩小截图，不再覆盖分辨率，
+  文字等叠加元素保持真实大小和位置（此前会被放大，联系表中最多放大 6 倍）。联系表各格不再上下
+  颠倒；`render_frame` 传 `frame=0` 时渲染第 0 帧，而不是播放头所在帧。
+- `configure_vse_layout` 保留已经是文件浏览器和属性的区域，不再按位置挑选。
+
 ## 0.2.0 - 2026-10-25
 
 - MCP 服务现在自带 `blender-vse` Skill：核心规则作为服务说明下发，完整 Skill 通过
